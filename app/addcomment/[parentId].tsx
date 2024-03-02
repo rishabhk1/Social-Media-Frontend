@@ -1,21 +1,15 @@
 import {useState} from 'react';
 import { StyleSheet, TextInput, View, Pressable, Text, SafeAreaView, FlatList, TouchableOpacity, Platform, StatusBar } from 'react-native';
 import {Link, useRouter} from 'expo-router';
+import { useLocalSearchParams, useGlobalSearchParams } from 'expo-router';
 
-const DATA = [
-  { id: '1', name: 'Apple' },
-  { id: '2', name: 'Banana' },
-  { id: '3', name: 'Cherry' },
-  { id: '4', name: 'Date' },
-  // Add more data as needed
-];
-
-export default function TabTwoScreen() {
+export default function AddComment() {
+  const {parentId} = useGlobalSearchParams();
+  console.warn(parentId);  
   const router = useRouter();
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");  
-  const [searchQuery, setSearchQuery] = useState('');
-  const [data, setData] = useState([]);
+  const [text, setText] = useState("");
+//   const [searchQuery, setSearchQuery] = useState('');
+//   const [data, setData] = useState([]);
     // [
     // { id: '1', name: 'Apple' },
     // { id: '2', name: 'Banana' },
@@ -24,24 +18,25 @@ export default function TabTwoScreen() {
     // Add more data as needed
   // ]
   
-  const handleSearch = (input:string) => {
-    const filteredData = DATA.filter(item =>
-      item.name.toLowerCase().includes(input.toLowerCase())
-    );
-    setSearchQuery(input);
-    setData(filteredData);
-    console.log(filteredData);
-  };
+// console.log(data.length);
+// console.log(searchQuery);
+//   const handleSearch = (input:string) => {
+//     const filteredData = DATA.filter(item =>
+//       item.name.toLowerCase().includes(input.toLowerCase())
+//     );
+//     setSearchQuery(input);
+//     setData(filteredData);
+//     console.log(filteredData);
+//   };
 
-  const handleItemPress = (item) => {
-    setSearchQuery(item.name);
-    setData([]);
-  };
+//   const handleItemPress = (item) => {
+//     setSearchQuery(item.name);
+//     setData([]);
+//   };
 
   const onPostPress = () => {
-    console.warn('done', title, description); 
-    setTitle("");
-    setDescription("");
+    console.warn('done', text); 
+    setText("");
     router.back();
   };
   return (
@@ -54,40 +49,14 @@ export default function TabTwoScreen() {
           </Pressable>
         </View>
         <View>
-          <TextInput
-            style={styles.input}
-            placeholder="Search..."
-            value={searchQuery}
-            onChangeText={handleSearch}
-            selectionColor="black"
-          />
-          {searchQuery !== '' && <FlatList
-            data={data}
-            keyExtractor={item => item.id}
-            renderItem={({ item }) => (
-              <TouchableOpacity onPress={() => handleItemPress(item)}>
-              <View style={styles.item}>
-                <Text>{item.name}</Text>
-              </View>
-              </TouchableOpacity>
-            )}
-          />}
-          {(data.length ==0 || searchQuery === '' )  &&  <>
+          { <>
           <TextInput 
             placeholder="enter title" 
             multiline
             //numberOfLines={2}
             style={styles.title}
-            value={title}
-            onChangeText={(newValue) => setTitle(newValue)}
-            selectionColor="black"
-            />
-          <TextInput 
-            placeholder="enter description" 
-            multiline
-            //rnumberOfLines={5}
-            style={styles.description}
-            onChangeText={(newValue) => setDescription(newValue)}
+            value={text}
+            onChangeText={(newValue) => setText(newValue)}
             selectionColor="black"
             />
           </>}

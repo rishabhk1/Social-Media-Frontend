@@ -2,6 +2,8 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
+import { Provider } from "react-redux";
+import {store} from ".././state/store"
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 
@@ -41,7 +43,11 @@ export default function RootLayout() {
     return null;
   }
 
-  return <RootLayoutNav />;
+  return (
+    <Provider store={store}>
+      <RootLayoutNav />
+    </Provider>
+  );
 }
 
 function RootLayoutNav() {
@@ -52,6 +58,9 @@ function RootLayoutNav() {
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="post/[id]" options={{title: 'post'}}/>
+        {/* <Stack.Screen name="popup/[type]" options={{presentation: 'modal'}}/> */}
+        <Stack.Screen name="addcomment/[parentId]" options={{ headerShown: false}}/>
       </Stack>
     </ThemeProvider>
   );
