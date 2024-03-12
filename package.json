@@ -16,6 +16,7 @@
     "@expo/vector-icons": "^14.0.0",
     "@react-navigation/native": "^6.0.2",
     "@reduxjs/toolkit": "^2.2.1",
+    "axios": "^1.6.7",
     "expo": "~50.0.6",
     "expo-font": "~11.10.2",
     "expo-linking": "~6.2.2",

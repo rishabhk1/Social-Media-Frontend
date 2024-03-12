@@ -1,9 +1,17 @@
 import { configureStore } from "@reduxjs/toolkit";
-import modalReducer from "./modal/modalSlice";
+import feedReducer from "./reducers/feedSlice";
+import postCommentReducer from "./reducers/postCommentSlice";
+import commentReducer from "./reducers/commentSlice";
+import profileReducer from "./reducers/profileSlice";
+import communityReducer from "./reducers/communitySlice";
 
 export const store = configureStore({
   reducer: {
-    modal: modalReducer,
+    feed: feedReducer,
+    postComment: postCommentReducer,
+    comment: commentReducer,
+    profile: profileReducer,
+    community: communityReducer
   },
 });
 

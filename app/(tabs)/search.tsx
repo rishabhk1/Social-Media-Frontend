@@ -43,7 +43,7 @@ const handleItemPress = (item) => {
             renderItem={({ item }) => (
               <TouchableOpacity onPress={() => handleItemPress(item)}>
               <View style={styles.item}>
-                <Text>{item.name}</Text>
+                <Text style={{color: 'black'}}>{item.name}</Text>
               </View>
               </TouchableOpacity>
             )}
@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#ddd',
     fontSize: 18,
-    color: '#333',
+    backgroundColor: 'white',
     //zIndex:1,
   },
 });

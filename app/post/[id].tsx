@@ -1,21 +1,52 @@
 import Post from '../../components/Post';
 import tweets from '../../assets/data/tweets';
 import comments from '../../assets/data/comments';
+import { useDispatch, useSelector } from 'react-redux';
+import { useState, useEffect } from 'react';
+import { RootState, AppDispatch } from '@/state/store';
+import { user_id } from '@/constants/Urls';
+import { clearPostComment } from "@/state/reducers/postCommentSlice";
 import Comment from '@/components/Comment';
-import {Text, View, FlatList, StyleSheet, TextInput, ScrollView, Pressable} from 'react-native';
-import { Link, useGlobalSearchParams } from 'expo-router';
+import {Text, View, FlatList, StyleSheet, TextInput, ScrollView, Pressable,ActivityIndicator} from 'react-native';
+import {fetchPostComment, upvoteFromPCAction, undoUpvoteFromPCAction, undoDownvoteFromPCAction, downvoteFromPCAction, fetchComment } from '@/actions/postComment'
+import { Link, useGlobalSearchParams, useLocalSearchParams, useRouter } from 'expo-router';
+
+const initialPage = 0;
 
 export default function PostScreen(){
-    const {id} = useGlobalSearchParams();
-    const tweet = tweets.find((t => t.id === id));
-    const comment= tweet?.comments?.map((id) => {
-        const cs = comments.find((c) => c.id === id);
-        return cs;
-      });
+    //const {postId} = useGlobalSearchParams();
+    const {id} = useLocalSearchParams();
+    const dispatch = useDispatch<AppDispatch>();
+    const posts = useSelector((state: RootState) => state.postComment.posts);
+    const loading = useSelector((state: RootState) => state.postComment.loading);
+    const nextPage = useSelector((state: RootState) => state.postComment.nextPage);
+    const error  = useSelector((state: RootState) => state.postComment.error);
+    // const tweet = tweets.find((t => t.id === id));
+    // const comment= tweet?.comments?.map((id) => {
+    //     const cs = comments.find((c) => c.id === id);
+    //     return cs;
+    //   });
 
-    if(!tweet){
-        return <Text>post {id} not found</Text>
-    }
+    // if(!tweet){
+    //     return <Text>post {id} not found</Text>
+    // }
+    // console.log('ps',postId);
+    console.log('local',id);
+
+    const onRefresh = () => {
+        dispatch(clearPostComment());
+        //setNextPage(initialPage);
+        if(loading) return;
+        dispatch(fetchPostComment(user_id, id, initialPage));
+        //setNextPage(nextPage+1);
+      };
+    
+      useEffect(() => {
+        dispatch(clearPostComment());
+        if(loading) return;
+        dispatch(fetchPostComment(user_id, id, initialPage));
+        //setNextPage(nextPage+1);
+      },[]);
     return (
         <View style={styles.page}>
             {/* <ScrollView>
@@ -29,14 +60,37 @@ export default function PostScreen(){
             </View>
             </ScrollView> */}
             <FlatList
-                data={[tweet, ...comments]} 
+                data={posts} 
                 // keyExtractor={(item, index) => index.toString()}
-                renderItem={({ item }) => (item.hasOwnProperty('user') ? ( //change user property parent
-                    <Post post={item} expand={true} />
+                renderItem={({ item }) => (item.hasOwnProperty('comments') ? ( //change user property parent
+                    <Post 
+                        post={item} 
+                        expand={true}
+                        upvoteFn={upvoteFromPCAction}
+                        downvoteFn={downvoteFromPCAction}
+                        undoDownvoteFn={undoDownvoteFromPCAction}
+                        undoUpvoteFn={undoUpvoteFromPCAction}
+                        />
                 ) : (
-                    <Comment comment={item} />
+                    <Comment 
+                        comment={item}
+                        upvoteFn={upvoteFromPCAction}
+                        downvoteFn={downvoteFromPCAction}
+                        undoDownvoteFn={undoDownvoteFromPCAction}
+                        undoUpvoteFn={undoUpvoteFromPCAction}
+                        />
                 ))}
                 contentContainerStyle={{paddingBottom:60}}
+                onEndReached={() => {
+                    if (!loading && nextPage>0) {
+                    
+                    dispatch(fetchComment(user_id,id,nextPage));
+                    // setNextPage(nextPage+1);
+                  }}}
+                  //onEndReachedThreshold={2}
+                  ListFooterComponent={() => loading && <ActivityIndicator />}
+                  refreshing={loading}
+                  onRefresh={onRefresh}
                 
             />
             <Link href={`/addcomment/1`} asChild> 

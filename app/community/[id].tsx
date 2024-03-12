@@ -1,24 +1,45 @@
-import { StyleSheet, FlatList,SectionList, View, Image, Text, TouchableOpacity, SafeAreaView, Pressable, Modal } from 'react-native';
-import React, {useState} from 'react';
+import { StyleSheet, FlatList,SectionList, View, Image, Text, TouchableOpacity, SafeAreaView, Pressable, Modal, ActivityIndicator } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import { Link, useGlobalSearchParams } from 'expo-router';
+import { Link, useGlobalSearchParams, useLocalSearchParams } from 'expo-router';
 import tweets from '@/assets/data/tweets';
 import comments from '@/assets/data/comments';
 import Post from '@/components/Post';
 import UserList from '@/components/UserList';
 import Comment from '@/components/Comment';
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "../../state/store";
-import {
-    toggleMembers, toggleMod
-} from "../../state/modal/modalSlice";
+import { useDispatch, useSelector } from 'react-redux';
+import React, { useState, useEffect } from 'react';
+import { RootState, AppDispatch } from '@/state/store';
+import {fetchPostComment, fetchPost, fetchComment, upvoteFromCommunityAction, undoUpvoteFromCommunityAction, undoDownvoteFromCommunityAction, downvoteFromCommunityAction } from '@/actions/community'
+import { clearCommunity } from '@/state/reducers/communitySlice';
+import { user_id } from '@/constants/Urls';
+// import {
+//     toggleMembers, toggleMod
+// } from "../../state/reducers/feedSlice";
 
+const initialPagePost = 0;
+const intialPageApplead=0;
 
 export default function CommunityHome() {
-    const {id} = useGlobalSearchParams();
+    const {id} = useLocalSearchParams();
+    console.log(id);
     // const dispatch = useDispatch<AppDispatch>();
     // const isMemberModalVisible = useSelector((state: RootState) => state.modal.members);
     // const isModModalVisible = useSelector((state: RootState) => state.modal.mod);
+    const dispatch = useDispatch<AppDispatch>();
+    const posts = useSelector((state: RootState) => state.community.posts);
+    const appealed = useSelector((state: RootState) => state.community.appealed);
+    const loading = useSelector((state: RootState) => state.community.loading);
+    const nextPagePost = useSelector((state: RootState) => state.community.nextPagePost);
+    const nextPageAppealed = useSelector((state: RootState) => state.community.nextPageAppealed);
+    const communityId = useSelector((state: RootState) => state.community.id);
+    const name = useSelector((state: RootState) => state.community.name);
+    const description = useSelector((state: RootState) => state.community.description);
+    const moderators = useSelector((state: RootState) => state.community.moderators);
+    const members = useSelector((state: RootState) => state.community.members);
+
+    const error  = useSelector((state: RootState) => state.community.error);
+
+
     const [isMemberModalVisible, setMemberModalVisible] = useState(false);
     const [isModModalVisible, setModModalVisible] = useState(false);
     const [selectedSection, setSelectedSection] = useState('posts');
@@ -26,44 +47,71 @@ export default function CommunityHome() {
         {
             id: '1',
             title: 'posts',
-            data: tweets
+            data: posts
         },
         {
             id: '2',
             title: 'appealed',
-            data: tweets
+            data: appealed
         }
     ];
     const img = 'https://notjustdev-dummy.s3.us-east-2.amazonaws.com/images/thumbnail.png';
-    const username='ririririr';
-    const members=45;
-    const moderators=5;
-    let key=0
-    useFocusEffect(React.useCallback(() => {
-       key++;
-    },[]));
+    // const username='ririririr';
+    // const members=45;
+    // const moderators=5;
+    // let key=0
+    // useFocusEffect(React.useCallback(() => {
+    //    key++;
+    // },[]));
     const onJoinPress = () => {
         console.warn('done'); 
       };
-
-    const changeMods = () => {
-        setModModalVisible(!isModModalVisible);
-        //dispatch(toggleMod());
+    const onRefresh = () => {
+    dispatch(clearCommunity());
+    //setNextPage(initialPage);
+    if(loading) return;
+    dispatch(fetchPostComment(id, user_id, initialPagePost, intialPageApplead));
+    //setNextPage(nextPage+1);
     };
 
-    const changeMembers = () => {
-        console.log(isMemberModalVisible);
-        setMemberModalVisible(!isMemberModalVisible);
+    useEffect(() => {
+        dispatch(clearCommunity());
+    if(loading) return;
+    dispatch(fetchPostComment(id, user_id, initialPagePost, intialPageApplead));
+    //setNextPage(nextPage+1);
+    },[]);
+    // const changeMods = () => {
+    //     setModModalVisible(!isModModalVisible);
+    //     //dispatch(toggleMod());
+    // };
+
+    // const changeMembers = () => {
+    //     console.log(isMemberModalVisible);
+    //     setMemberModalVisible(!isMemberModalVisible);
         
-        //dispatch(toggleMembers());
-    };
+    //     //dispatch(toggleMembers());
+    // };
 
     const renderItem = ({item, section}) =>{
         if(selectedSection==='appealed' && section.title==='appealed'){
-            return <Post post={item} expand={false}/>;
+            return <Post 
+                        post={item} 
+                        expand={false}
+                        upvoteFn={upvoteFromCommunityAction}
+                        downvoteFn={downvoteFromCommunityAction}
+                        undoUpvoteFn={undoUpvoteFromCommunityAction}
+                        undoDownvoteFn={undoDownvoteFromCommunityAction}      
+                        />;
         }
         else if(selectedSection==='posts' && section.title==='posts'){
-            return <Post post={item} expand={false}/>;
+            return <Post 
+                    post={item} 
+                    expand={false}
+                    upvoteFn={upvoteFromCommunityAction}
+                    downvoteFn={downvoteFromCommunityAction}
+                    undoUpvoteFn={undoUpvoteFromCommunityAction}
+                    undoDownvoteFn={undoDownvoteFromCommunityAction}  
+                    />;
         }
     };
     const renderSectionHeader = ({section}) => (
@@ -83,11 +131,11 @@ export default function CommunityHome() {
                 />
                 <View>
                 <View style={styles.userInfo}>
-                    <Text style={styles.userText}>{username}</Text>
+                    <Text style={styles.userText}>{name}</Text>
                     <View style={styles.members}>
                         <TouchableOpacity style={styles.membersText}>
                             <Link  href="/popup/members">
-                            <Text style={styles.membersText}>{members} members</Text>
+                            <Text style={styles.membersText}>{members.length} members</Text>
                             </Link>
                         </TouchableOpacity>
                         {/* <Modal
@@ -113,7 +161,7 @@ export default function CommunityHome() {
                             </Modal> */}
                         <TouchableOpacity>
                             <Link  href="/popup/moderators">
-                            <Text style={styles.moderatorsText}>{moderators} moderators</Text>
+                            <Text style={styles.moderatorsText}>{moderators.length} moderators</Text>
                             </Link>
                         </TouchableOpacity>
                             {/* <Modal
@@ -158,6 +206,20 @@ export default function CommunityHome() {
                     renderItem={renderItem}
                     keyExtractor={(item) => item.id }
                     //renderSectionHeader={renderSectionHeader}
+                    onEndReached={() => {
+                        if (!loading && nextPagePost>0 && selectedSection==="posts") {
+                            dispatch(fetchPost(id,user_id,nextPagePost));
+                        // setNextPage(nextPage+1);
+                        }
+                        else if (!loading && nextPageAppealed>0 && selectedSection==="appealed") {
+                            dispatch(fetchComment(id,user_id,nextPageAppealed));
+                        // setNextPage(nextPage+1);
+                        }
+                      }}
+                      //onEndReachedThreshold={2}
+                      ListFooterComponent={() => loading && <ActivityIndicator />}
+                      refreshing={loading}
+                      onRefresh={onRefresh}
                 />
             </View>
         </SafeAreaView>

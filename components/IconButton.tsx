@@ -4,7 +4,7 @@ import {MaterialCommunityIcons} from '@expo/vector-icons';
 
 type IconButtonProps = {
   icon: React.ComponentProps<typeof MaterialCommunityIcons >['name'];
-  text?: string;
+  text?: string | number;
 };
 const IconButton = ({icon, text}: IconButtonProps) => {
   return(

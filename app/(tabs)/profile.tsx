@@ -1,17 +1,38 @@
-import { StyleSheet, FlatList,SectionList, View, Image, Text, TouchableOpacity, SafeAreaView } from 'react-native';
-import {useState} from 'react';
+import { StyleSheet, FlatList,SectionList, View, Image, Text, TouchableOpacity, SafeAreaView, ActivityIndicator } from 'react-native';
 import tweets from '@/assets/data/tweets';
-import comments from '@/assets/data/comments';
+// import comments from '@/assets/data/comments';
 import Post from '@/components/Post';
 import Comment from '@/components/Comment';
+import { useDispatch, useSelector } from 'react-redux';
+import { useState, useEffect } from 'react';
+import { RootState, AppDispatch } from '@/state/store';
+import {fetchPost, fetchComment, fetchPostComment, upvoteFromProfileAction, downvoteFromProfileAction, undoDownvoteFromProfileAction, undoUpvoteFromProfileAction} from '@/actions/profile'
+import { clearProfile } from '@/state/reducers/profileSlice';
+import { user_id } from '@/constants/Urls';
 
-export default function Profile({id}) {
+const initialPagePost = 0;
+const intialPageComment=0;
+
+
+export default function Profile({id=user_id}) {
+    console.log("profile", id);
+    const dispatch = useDispatch<AppDispatch>();
+    const posts = useSelector((state: RootState) => state.profile.posts);
+    const comments = useSelector((state: RootState) => state.profile.comments);
+    const loading = useSelector((state: RootState) => state.profile.loading);
+    const nextPagePost = useSelector((state: RootState) => state.profile.nextPagePost);
+    const nextPageComment = useSelector((state: RootState) => state.profile.nextPageComment);
+    const targetUserId = useSelector((state: RootState) => state.profile.targetUserId);
+    const targetUserReputation = useSelector((state: RootState) => state.profile.targetUserReputation);
+    const targetUserEmail = useSelector((state: RootState) => state.profile.targetUserEmail);
+    const targetUserName = useSelector((state: RootState) => state.profile.targetUserName);
+    const error  = useSelector((state: RootState) => state.profile.error);
     const [selectedSection, setSelectedSection] = useState('posts');
     const sections = [
         {
             id: '1',
             title: 'posts',
-            data: tweets
+            data: posts
         },
         {
             id: '2',
@@ -20,14 +41,39 @@ export default function Profile({id}) {
         }
     ];
     const img = 'https://notjustdev-dummy.s3.us-east-2.amazonaws.com/images/thumbnail.png';
-    const username='ririririr';
-    const reputation=45;
+    const onRefresh = () => {
+        dispatch(clearProfile());
+        //setNextPage(initialPage);
+        if(loading) return;
+        dispatch(fetchPostComment(id, user_id, initialPagePost, intialPageComment));
+        //setNextPage(nextPage+1);
+      };
+    
+      useEffect(() => {
+        dispatch(clearProfile());
+        if(loading) return;
+        dispatch(fetchPostComment(id, user_id, initialPagePost, intialPageComment));
+        //setNextPage(nextPage+1);
+      },[]);
     const renderItem = ({item, section}) =>{
         if(selectedSection==='comments' && section.title==='comments'){
-            return <Comment comment={item}/>;
+            return <Comment 
+                    comment={item}
+                    upvoteFn={upvoteFromProfileAction}
+                    downvoteFn={downvoteFromProfileAction}
+                    undoUpvoteFn={undoUpvoteFromProfileAction}
+                    undoDownvoteFn={undoDownvoteFromProfileAction}
+                    />;
         }
         else if(selectedSection==='posts' && section.title==='posts'){
-            return <Post post={item} expand={false}/>;
+            return <Post 
+                    post={item} 
+                    expand={false}
+                    upvoteFn={upvoteFromProfileAction}
+                    downvoteFn={downvoteFromProfileAction}
+                    undoUpvoteFn={undoUpvoteFromProfileAction}
+                    undoDownvoteFn={undoDownvoteFromProfileAction}
+                    />;
         }
     };
     const renderSectionHeader = ({section}) => (
@@ -45,8 +91,8 @@ export default function Profile({id}) {
                     style={styles.profileImage}
                 />
                 <View style={styles.userInfo}>
-                    <Text style={styles.userText}>{username}</Text>
-                    <Text style={styles.userText}>reputation {reputation}</Text>
+                    <Text style={styles.userText}>{targetUserName}</Text>
+                    <Text style={styles.userText}>reputation {targetUserReputation}</Text>
                 </View>
             </View>
             <View style={{flex: 1}}>
@@ -64,6 +110,20 @@ export default function Profile({id}) {
                     renderItem={renderItem}
                     keyExtractor={(item) => item.id }
                     //renderSectionHeader={renderSectionHeader}
+                    onEndReached={() => {
+                        if (!loading && nextPagePost>0 && selectedSection==="posts") {
+                            dispatch(fetchPost(id,user_id,nextPagePost));
+                        // setNextPage(nextPage+1);
+                        }
+                        else if (!loading && nextPageComment>0 && selectedSection==="comments") {
+                            dispatch(fetchComment(id,user_id,nextPageComment));
+                        // setNextPage(nextPage+1);
+                        }
+                      }}
+                      //onEndReachedThreshold={2}
+                      ListFooterComponent={() => loading && <ActivityIndicator />}
+                      refreshing={loading}
+                      onRefresh={onRefresh}
                 />
             </View>
         </SafeAreaView>
@@ -90,3 +150,28 @@ const styles = StyleSheet.create({
         fontSize: 22
     }
 });
+
+
+// import {Text, View, FlatList, StyleSheet} from 'react-native';
+// import { Link, useGlobalSearchParams, useLocalSearchParams, router } from 'expo-router';
+// import { user_id } from '@/constants/Urls';
+
+// export default function ProfileScreen(){
+//     router.replace(`/profile/${user_id}`);
+//     // return(
+//     //     <View style={styles.page}>
+//     //         {/* <Link href={{
+//     //             pathname:"/profile/[id]",
+//     //             params:{id:user_id}
+//     //         }}></Link> */}
+//     //         <p></p>
+//     //     </View>
+//     // );
+// }
+
+// const styles = StyleSheet.create({
+//     page: {
+//       flex: 1,
+//       backgroundColor: 'white',
+//     }
+//   });

@@ -1,0 +1,16 @@
+export const user_id="1";
+export const BASE_URL="https://raptor-rested-evidently.ngrok-free.app";
+export const FEED_PATH="/feed";
+export const UPVOTE="/post/upvote";
+export const DOWNVOTE="/post/downvote";
+export const UNDO_UPVOTE="/post/undo_upvote";
+export const UNDO_DOWNVOTE="/post/undo_downvote";
+export const GET_POST="/post";
+export const GET_COMMENT="/comment";
+export const COMMENT_FEED="/comment/feed";
+export const GET_USER="/user"
+export const GET_PROFILE_POSTS="/user_profile/posts"
+export const GET_PROFILE_COMMENTS="/user_profile/comments"
+export const GET_COMMUNITY="/channel"
+export const GET_COMMUNITY_POSTS="/community/posts"
+export const GET_COMMUNITY_APPEALED="/community/appealed"
