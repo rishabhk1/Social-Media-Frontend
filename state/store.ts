@@ -4,6 +4,10 @@ import postCommentReducer from "./reducers/postCommentSlice";
 import commentReducer from "./reducers/commentSlice";
 import profileReducer from "./reducers/profileSlice";
 import communityReducer from "./reducers/communitySlice";
+import searchReducer from "./reducers/searchSlice"
+import createPostReducer from "./reducers/createPostSlice" 
+import createCommentReducer from "./reducers/createCommentSlice" 
+import createCommunityReducer from "./reducers/createCommunitySlice" 
 
 export const store = configureStore({
   reducer: {
@@ -11,7 +15,11 @@ export const store = configureStore({
     postComment: postCommentReducer,
     comment: commentReducer,
     profile: profileReducer,
-    community: communityReducer
+    community: communityReducer,
+    search: searchReducer,
+    createPost: createPostReducer,
+    createComment: createCommentReducer,
+    createCommunity: createCommentReducer
   },
 });
 

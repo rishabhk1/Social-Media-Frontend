@@ -21,6 +21,9 @@ import { createSlice } from "@reduxjs/toolkit";
     communityName: string;
     hasUpvoted: boolean;
     hasDownvoted: boolean;
+    isAppealed: boolean;
+    hasShowvoted: boolean;
+    hasHidevoted: boolean;
   }
 
 export interface CommentState {
@@ -45,7 +48,9 @@ export interface CommentState {
       setPost(state, action) {
         console.log('inside slice');
         console.log(action.payload.posts);
-        state.posts = [...state.posts, action.payload.posts];
+        if(!action.payload.posts.hidden){
+          state.posts = [...state.posts, action.payload.posts];
+        }
         //state.nextPage = action.payload.hasMorePages ? state.nextPage + 1 : -2;
       },
       setComments(state, action) {
@@ -135,13 +140,35 @@ export interface CommentState {
           ...state,
           posts: updatedPosts,
         };
+      },
+      deleteFromComment(state,action){
+        const updatedPosts = state.posts.filter((post) =>
+          post.id !== action.payload.postId
+        )
+        return {
+          ...state,
+          posts: updatedPosts,
+        };
+      },
+      appealFromComment(state,action){
+        const updatedPosts = state.posts.map((post) =>
+          post.id === action.payload.postId
+            ? { ...post, isAppealed: true }
+            : post
+        );
+        return {
+          ...state,
+          posts: updatedPosts,
+        };
       }
+
+
       // You can add more reducers here for specific actions related to post management
     },
   });
   
   // Export the actions
-export const { setPost, setComments, setLoading, setError, clearComments, upvoteFromComment, downvoteFromComment, undoUpvoteFromComment, undoDownvoteFromComment } = commentSlice.actions;
+export const { appealFromComment, deleteFromComment,setPost, setComments, setLoading, setError, clearComments, upvoteFromComment, downvoteFromComment, undoUpvoteFromComment, undoDownvoteFromComment } = commentSlice.actions;
 
 
 export default commentSlice.reducer;

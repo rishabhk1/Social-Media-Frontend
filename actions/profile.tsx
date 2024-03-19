@@ -1,8 +1,8 @@
 import axios from "../axios";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { Dispatch } from "@reduxjs/toolkit";
-import {  setTargetUser, setPosts, setComments, setLoading, setError, clearProfile, upvoteFromProfile, downvoteFromProfile, undoUpvoteFromProfile, undoDownvoteFromProfile } from "@/state/reducers/profileSlice";
-import { DOWNVOTE, UNDO_DOWNVOTE, UNDO_UPVOTE, UPVOTE, GET_USER, GET_PROFILE_POSTS, GET_PROFILE_COMMENTS} from "@/constants/Urls";
+import { appealFromProfile, setTargetUser, setPosts, setComments, setLoading, setError, clearProfile, upvoteFromProfile, downvoteFromProfile, undoUpvoteFromProfile, undoDownvoteFromProfile, deleteFromProfile } from "@/state/reducers/profileSlice";
+import { DOWNVOTE, UNDO_DOWNVOTE, UNDO_UPVOTE, UPVOTE, GET_USER, GET_PROFILE_POSTS, GET_PROFILE_COMMENTS, APPEAL, DELETE} from "@/constants/Urls";
 
 export const fetchPostComment = (targetUserId?: string, userId?: string ,pageNoPost?: number, pageNoComment?: number) =>  {
     console.log('postid', userId, targetUserId);
@@ -263,4 +263,60 @@ export const undoDownvoteFromProfileAction = (userId?: string, postId?: string) 
         dispatch(setError(error.message));
       }
     }
+};
+
+export const deleteFromProfileAction = (userId?: string, postId?: string) =>  {
+
+  return async (dispatch) => {
+  //   dispatch(setLoading(true));
+  //   console.log('started');
+  const formData = new URLSearchParams();
+  formData.append("args", postId);
+  formData.append("args", userId);
+    try {
+      const response = await axios.post(DELETE,formData, {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+        });
+
+      if (response.status === 200) {
+          console.log('delete',response.data);
+          dispatch(deleteFromProfile({postId}));
+        
+      } else {
+        throw new Error(response?.data?.message || "Error");
+      }
+    } catch (error) {
+      dispatch(setError(error.message));
+    }
+  }
+};
+
+export const appealFromProfileAction = (userId?: string, postId?: string) =>  {
+
+  return async (dispatch) => {
+  //   dispatch(setLoading(true));
+  //   console.log('started');
+  const formData = new URLSearchParams();
+  formData.append("args", postId);
+  formData.append("args", userId);
+    try {
+      const response = await axios.post(APPEAL,formData, {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+        });
+
+      if (response.status === 200) {
+          console.log('appeal',response.data);
+          dispatch(appealFromProfile({postId}));
+        
+      } else {
+        throw new Error(response?.data?.message || "Error");
+      }
+    } catch (error) {
+      dispatch(setError(error.message));
+    }
+  }
 };

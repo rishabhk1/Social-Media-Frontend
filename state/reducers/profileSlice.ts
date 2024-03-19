@@ -21,6 +21,9 @@ interface Post {
     communityName: string;
     hasUpvoted: boolean;
     hasDownvoted: boolean;
+    isAppealed: boolean;
+    hasShowvoted: boolean;
+    hasHidevoted: boolean;
   }
 
   interface Comment {
@@ -38,6 +41,9 @@ interface Post {
     communityName: string;
     hasUpvoted: boolean;
     hasDownvoted: boolean;
+    isAppealed: boolean;
+    hasShowvoted: boolean;
+    hasHidevoted: boolean;
   }
 
 export interface ProfileState {
@@ -222,13 +228,53 @@ export interface ProfileState {
           ...state,
           comments: updatedPosts,
         };
+      },
+      deleteFromProfile(state,action){
+        if(action.payload.postId.startsWith('p')){
+          const updatedPosts = state.posts.filter((post) =>
+            post.id !== action.payload.postId
+          )
+          return {
+            ...state,
+            posts: updatedPosts,
+          };
+        }
+        const updatedPosts = state.comments.filter((post) =>
+            post.id !== action.payload.postId
+          )
+          return {
+            ...state,
+            comments: updatedPosts,
+          };
+      },
+      appealFromProfile(state,action){
+        if(action.payload.postId.startsWith('p')){
+          const updatedPosts = state.posts.map((post) =>
+            post.id === action.payload.postId
+              ? { ...post, isAppealed: true }
+              : post
+          );
+          return {
+            ...state,
+            posts: updatedPosts,
+          };
+        }
+          const updatedPosts = state.comments.map((post) =>
+          post.id === action.payload.postId
+            ? { ...post, isAppealed: true }
+            : post
+        );
+          return {
+            ...state,
+            appealed: updatedPosts,
+          };
       }
       // You can add more reducers here for specific actions related to post management
     },
   });
   
   // Export the actions
-export const { setTargetUser, setPosts, setComments, setLoading, setError, clearProfile, upvoteFromProfile, downvoteFromProfile, undoUpvoteFromProfile, undoDownvoteFromProfile } = profileSlice.actions;
+export const {appealFromProfile, deleteFromProfile, setTargetUser, setPosts, setComments, setLoading, setError, clearProfile, upvoteFromProfile, downvoteFromProfile, undoUpvoteFromProfile, undoDownvoteFromProfile } = profileSlice.actions;
 
 
 export default profileSlice.reducer;

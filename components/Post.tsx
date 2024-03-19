@@ -1,15 +1,60 @@
-import { StyleSheet, Image, View, Text, Pressable } from 'react-native';
+import { StyleSheet, Image, View, Text, Pressable, Alert } from 'react-native';
 import { Entypo    } from '@expo/vector-icons';
 import IconButton from './IconButton';
 import {MaterialCommunityIcons} from '@expo/vector-icons';
-import React from 'react';
+import React,{useState} from 'react';
 import { useDispatch } from 'react-redux';
 import { user_id } from '@/constants/Urls';
 import { AppDispatch } from '@/state/store';
+import { Button, Dialog, Portal,PaperProvider } from 'react-native-paper';
+import { showFromCommunityAction, hideFromCommunityAction } from '@/actions/community';
+
 
 import {Link} from 'expo-router';
 
-const Post = ({post,expand, upvoteFn, downvoteFn, undoDownvoteFn,undoUpvoteFn}) => {
+const createDeleteAlert = (dispatch, deleteFn, id) =>
+Alert.alert('Delete', 'do you want to delete this post', [
+  {text: 'OK', onPress: () => dispatch(deleteFn(user_id, id))},
+  {
+    text: 'Cancel',
+    onPress: () => console.log('Cancel Pressed'),
+    style: 'cancel',
+  },
+],{ cancelable: true});
+
+const moderatorVoteAlert = (dispatch, id) =>
+Alert.alert('Moderator Vote', 'select either show or hide for this post', [
+  {text: 'Show', onPress: () => dispatch(showFromCommunityAction(user_id, id))},
+  {
+    text: 'Hide',
+    onPress: () => dispatch(hideFromCommunityAction(user_id, id)),
+
+  },
+],{ cancelable: true});
+
+const appealAlert = (dispatch, appealFn, id, isAppealed, showCount) => {
+  if(showCount==-100){
+    return Alert.alert('Appeal', 'this post was already appealed and moderators decided to show the post')
+  }
+  if(isAppealed){
+    return Alert.alert('Appeal', 'this post is already appealed')
+  }
+  return Alert.alert('appeal', 'do you want to appeal this post', [
+    {text: 'OK', onPress: () => dispatch(appealFn(user_id, id))},
+    {
+      text: 'Cancel',
+      onPress: () => console.log('Cancel Pressed'),
+      style: 'cancel',
+    },
+  ],{ cancelable: true});
+}
+
+const Post = ({post,expand, upvoteFn, downvoteFn, undoDownvoteFn,undoUpvoteFn, deleteFn, appealFn, isModerator=false}) => {
+  const [showButtons, setShowButtons] = useState(false);
+  const [visible, setVisible] = React.useState(false);
+  const hideDialog = () => setVisible(false);
+  const showDialog= () => setVisible(true);
+
   const dispatch = useDispatch<AppDispatch>();
   //console.log(post.id);
     return (
@@ -32,7 +77,7 @@ const Post = ({post,expand, upvoteFn, downvoteFn, undoDownvoteFn,undoUpvoteFn}) 
               </Link>
             </Pressable>
             <Text style={styles.username}>2h</Text>
-            <Entypo name="dots-three-horizontal" size={16} color="gray" style={{marginLeft: 'auto'}}/>
+            {isModerator && <Entypo name="dots-three-horizontal" size={16} color="black" style={{marginLeft: 'auto'}}  onPress={()=>moderatorVoteAlert(dispatch, post.id)}/>}
           </View>
           <Text style={styles.content}>{post.title}</Text>
           {expand && <Text style={styles.content}>{post.content}</Text>}
@@ -40,6 +85,7 @@ const Post = ({post,expand, upvoteFn, downvoteFn, undoDownvoteFn,undoUpvoteFn}) 
               {/* <IconButton icon='arrow-up' text={post.score}/>
               <IconButton icon='comment-outline' text={post.comments?.length}/>
               <IconButton icon='share-outline' text=''/> */}
+            <View style={{    flexDirection: 'row', alignItems: 'center'}}>
             <View style={{flexDirection:'row',alignItems:'center', marginRight:40}}>
               <MaterialCommunityIcons  
                 name={'arrow-up'} 
@@ -66,10 +112,35 @@ const Post = ({post,expand, upvoteFn, downvoteFn, undoDownvoteFn,undoUpvoteFn}) 
             <View style={{flexDirection:'row',alignItems:'center', marginRight:40}}>
               <MaterialCommunityIcons  name={'share-outline'} size={22} color="gray"/>
             </View>
+            </View>
+            <View style={{    flexDirection: 'row', alignItems: 'center'}}>
+              {((post.author === user_id) && <View style={{marginRight:10}}>
+                <MaterialCommunityIcons  name={'delete-outline'} size={22} color="gray" onPress={() => createDeleteAlert(dispatch, deleteFn, post.id)}/>
+              </View>)}
+              <View>
+                <MaterialCommunityIcons  name={'flag-variant-outline'} size={22} color="gray" onPress={() => appealAlert(dispatch, appealFn, post.id, post.isAppealed, post.showCount)}/>
+              </View>
+            </View>
+          </View>
+           <View style={styles.mainButtoncontainer}>
+           {(showButtons && <View style={styles.buttonContainer}>
+                <Button
+                  buttonColor="#FFFF00"
+                  style={styles.button}
+                  mode='contained'
+                >appeal</Button>
+                <Button
+                  buttonColor="#FF0000"
+                  style={styles.button}
+                  mode='contained'
+                  disabled={post.author !== user_id}>delete</Button>
+              </View>)}
+            
           </View>
         </View>
       </Pressable>
       </Link>
+      
     );
 }
 const styles = StyleSheet.create({
@@ -103,7 +174,23 @@ const styles = StyleSheet.create({
     footer:{
       flexDirection: 'row',
       marginVertical: 5,
-    }
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    mainButtoncontainer: {
+      // alignItems: 'center',
+      // justifyContent: 'center',
+    },
+    buttonContainer: {
+      flexDirection: 'row',
+      marginTop: 5,
+    },
+    button: {
+      // marginHorizontal: 10,
+      alignItems: 'center',
+      marginRight:40
+
+    },
   });
  
 export default Post;  

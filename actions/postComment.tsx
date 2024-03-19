@@ -1,8 +1,8 @@
 import axios from "../axios";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { Dispatch } from "@reduxjs/toolkit";
-import {  setPost, setComments, setLoading, setError, clearPostComment, upvoteFromPC, downvoteFromPC, undoUpvoteFromPC, undoDownvoteFromPC } from "@/state/reducers/postCommentSlice";
-import { DOWNVOTE, COMMENT_FEED, UNDO_DOWNVOTE, UNDO_UPVOTE, UPVOTE, GET_POST } from "@/constants/Urls";
+import {appealFromPC,  setPost, setComments, setLoading, setError, clearPostComment, upvoteFromPC, downvoteFromPC, undoUpvoteFromPC, undoDownvoteFromPC, deleteFromPC } from "@/state/reducers/postCommentSlice";
+import { DOWNVOTE, COMMENT_FEED, UNDO_DOWNVOTE, UNDO_UPVOTE, UPVOTE, GET_POST, APPEAL, DELETE } from "@/constants/Urls";
 
 export const fetchPostComment = (userId?: string, postId?: string ,page?: number) =>  {
     console.log('postid', userId, postId, page);
@@ -208,3 +208,60 @@ export const undoDownvoteFromPCAction = (userId?: string, postId?: string) =>  {
       }
     }
 };
+
+export const deleteFromPCAction = (userId?: string, postId?: string) =>  {
+
+  return async (dispatch) => {
+  //   dispatch(setLoading(true));
+  //   console.log('started');
+  const formData = new URLSearchParams();
+  formData.append("args", postId);
+  formData.append("args", userId);
+    try {
+      const response = await axios.post(DELETE,formData, {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+        });
+
+      if (response.status === 200) {
+          console.log('delete',response.data);
+          dispatch(deleteFromPC({postId}));
+        
+      } else {
+        throw new Error(response?.data?.message || "Error");
+      }
+    } catch (error) {
+      dispatch(setError(error.message));
+    }
+  }
+};
+
+export const appealFromPCAction = (userId?: string, postId?: string) =>  {
+
+  return async (dispatch) => {
+  //   dispatch(setLoading(true));
+  //   console.log('started');
+  const formData = new URLSearchParams();
+  formData.append("args", postId);
+  formData.append("args", userId);
+    try {
+      const response = await axios.post(APPEAL,formData, {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+        });
+
+      if (response.status === 200) {
+          console.log('appeal',response.data);
+          dispatch(appealFromPC({postId}));
+        
+      } else {
+        throw new Error(response?.data?.message || "Error");
+      }
+    } catch (error) {
+      dispatch(setError(error.message));
+    }
+  }
+};
+

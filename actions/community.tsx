@@ -1,8 +1,11 @@
 import axios from "../axios";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { Dispatch } from "@reduxjs/toolkit";
-import { setCommunity, setPosts, setAppealed, setLoading, setError, clearCommunity, upvoteFromCommunity, downvoteFromCommunity, undoUpvoteFromCommunity, undoDownvoteFromCommunity } from "@/state/reducers/communitySlice";
-import { DOWNVOTE, UNDO_DOWNVOTE, UNDO_UPVOTE, UPVOTE, GET_USER, GET_PROFILE_POSTS, GET_PROFILE_COMMENTS, GET_COMMUNITY, GET_COMMUNITY_POSTS, GET_COMMUNITY_APPEALED} from "@/constants/Urls";
+import { useDispatch, useSelector } from 'react-redux';
+import { useState, useEffect } from 'react';
+import { RootState, AppDispatch } from '@/state/store';
+import {appealFromCommunity, joinCommunity,unjoinCommunity,  setCommunity, setPosts, setAppealed, setLoading, setError, clearCommunity, upvoteFromCommunity, downvoteFromCommunity, undoUpvoteFromCommunity, undoDownvoteFromCommunity, deleteFromCommunity, HideFromCommunity, hideFromCommunity, showFromCommunity } from "@/state/reducers/communitySlice";
+import { DOWNVOTE, UNDO_DOWNVOTE, UNDO_UPVOTE, UPVOTE, GET_USER, GET_PROFILE_POSTS, GET_PROFILE_COMMENTS, GET_COMMUNITY, GET_COMMUNITY_POSTS, GET_COMMUNITY_APPEALED, JOIN_COMMUNITY, UNJOIN_COMMUNITY, APPEAL, SHOW, HIDE, DELETE} from "@/constants/Urls";
 
 export const fetchPostComment = (communityId?: string, userId?: string ,pageNoPost?: number, pageNoAppealed?: number) =>  {
     console.log('postid', userId, communityId);
@@ -67,6 +70,7 @@ export const fetchPostComment = (communityId?: string, userId?: string ,pageNoPo
                 description: response3.data.description,
                 moderators: response3.data.moderators,
                 members:response3.data.users,
+                userId: userId
             }));
           } else {
             // Handle non-200 status codes here (e.g., dispatch error action)
@@ -183,7 +187,6 @@ export const upvoteFromCommunityAction= (userId?: string, postId?: string) =>  {
 };
 
 export const downvoteFromCommunityAction = (userId?: string, postId?: string) =>  {
-
     return async (dispatch) => {
     //   dispatch(setLoading(true));
     //   console.log('started');
@@ -266,4 +269,175 @@ export const undoDownvoteFromCommunityAction = (userId?: string, postId?: string
         dispatch(setError(error.message));
       }
     }
+};
+
+export const joinCommunityAction = (userId?: string, communityId?: string) =>  {
+    return async (dispatch) => {
+    //   dispatch(setLoading(true));
+    //   console.log('started');
+    const formData = new URLSearchParams();
+    formData.append("args", communityId);
+    formData.append("args", userId);
+      try {
+        const response = await axios.post(JOIN_COMMUNITY,formData, {
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+          });
+
+        if (response.status === 200) {
+            console.log(response.data);
+            if(response.data) dispatch(joinCommunity({
+                id: response.data.id,
+                username: response.data.username,
+                email: response.data.email,
+                reputation: response.data.reputation,
+            }));
+          
+        } else {
+          throw new Error(response?.data?.message || "Error");
+        }
+      } catch (error) {
+        dispatch(setError(error.message));
+      }
+    }
+};
+
+export const unjoinCommunityAction = (userId?: string, communityId?: string) =>  {
+    return async (dispatch) => {
+    //   dispatch(setLoading(true));
+    //   console.log('started');
+    const formData = new URLSearchParams();
+    formData.append("args", communityId);
+    formData.append("args", userId);
+      try {
+        const response = await axios.post(UNJOIN_COMMUNITY,formData, {
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+          });
+
+        if (response.status === 200 && response) {
+            console.log(response.data);
+            if(response.data) dispatch(unjoinCommunity({userId}));
+          
+        } else {
+          throw new Error(response?.data?.message || "Error");
+        }
+      } catch (error) {
+        dispatch(setError(error.message));
+      }
+    }
+};
+
+export const deleteFromCommunityAction = (userId?: string, postId?: string) =>  {
+
+  return async (dispatch) => {
+  //   dispatch(setLoading(true));
+  //   console.log('started');
+  const formData = new URLSearchParams();
+  formData.append("args", postId);
+  formData.append("args", userId);
+    try {
+      const response = await axios.post(DELETE,formData, {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+        });
+
+      if (response.status === 200) {
+          console.log('delete',response.data);
+          dispatch(deleteFromCommunity({postId}));
+        
+      } else {
+        throw new Error(response?.data?.message || "Error");
+      }
+    } catch (error) {
+      dispatch(setError(error.message));
+    }
+  }
+};
+
+export const appealFromCommunityAction = (userId?: string, postId?: string) =>  {
+
+  return async (dispatch) => {
+  //   dispatch(setLoading(true));
+  //   console.log('started');
+  const formData = new URLSearchParams();
+  formData.append("args", postId);
+  formData.append("args", userId);
+    try {
+      const response = await axios.post(APPEAL,formData, {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+        });
+
+      if (response.status === 200) {
+          console.log('appeal',response.data);
+          dispatch(appealFromCommunity({postId}));
+        
+      } else {
+        throw new Error(response?.data?.message || "Error");
+      }
+    } catch (error) {
+      dispatch(setError(error.message));
+    }
+  }
+};
+
+export const showFromCommunityAction = (userId?: string, postId?: string) =>  {
+
+  return async (dispatch) => {
+  //   dispatch(setLoading(true));
+  //   console.log('started');
+  const formData = new URLSearchParams();
+  formData.append("args", postId);
+  formData.append("args", userId);
+    try {
+      const response = await axios.post(SHOW,formData, {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+        });
+
+      if (response.status === 200) {
+          console.log('show',response.data);
+          dispatch(showFromCommunity({postId}));
+        
+      } else {
+        throw new Error(response?.data?.message || "Error");
+      }
+    } catch (error) {
+      dispatch(setError(error.message));
+    }
+  }
+};
+
+export const hideFromCommunityAction = (userId?: string, postId?: string) =>  {
+
+  return async (dispatch) => {
+  //   dispatch(setLoading(true));
+  //   console.log('started');
+  const formData = new URLSearchParams();
+  formData.append("args", postId);
+  formData.append("args", userId);
+    try {
+      const response = await axios.post(HIDE,formData, {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+        });
+
+      if (response.status === 200) {
+          console.log('hide',response.data);
+          dispatch(hideFromCommunity({postId}));
+        
+      } else {
+        throw new Error(response?.data?.message || "Error");
+      }
+    } catch (error) {
+      dispatch(setError(error.message));
+    }
+  }
 };

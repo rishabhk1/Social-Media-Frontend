@@ -7,6 +7,11 @@ import { Pressable } from 'react-native';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { useClientOnlyValue } from '@/components/useClientOnlyValue';
+import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { View } from 'react-native';
+import { Button, Menu, Divider, PaperProvider } from 'react-native-paper';
+import { useNavigation } from '@react-navigation/native';
+
 
 // You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
 function TabBarIcon(props: {
@@ -18,8 +23,20 @@ function TabBarIcon(props: {
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const [visible, setVisible] = React.useState(false);
 
+  const openMenu = () => setVisible(true);
+
+  const closeMenu = () => setVisible(false);
+  const navigation = useNavigation();
+
+  const handlePress = (routeName:string) => {
+    closeMenu(); // Close the menu after navigation (optional)
+    navigation.navigate(routeName);
+  };
+  
   return (
+    <PaperProvider>
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
@@ -33,18 +50,58 @@ export default function TabLayout() {
           title: "Home",
           tabBarIcon: ({ color }) => <Entypo name="home" size={28} color="white" />,
           headerRight: () => (
-            <Link href="/modal" asChild>
-              <Pressable>
-                {({ pressed }) => (
-                  <FontAwesome
-                    name="info-circle"
-                    size={25}
-                    color={Colors[colorScheme ?? 'light'].text}
-                    style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
-                  />
-                )}
-              </Pressable>
-            </Link>
+            // <Link href="/modal" asChild>
+            //   <Pressable>
+            //     {({ pressed }) => (
+            //       <FontAwesome
+            //         name="info-circle"
+            //         size={25}
+            //         color={Colors[colorScheme ?? 'light'].text}
+            //         style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
+            //       />
+            //     )}
+            //   </Pressable>
+            // </Link>
+            
+            <View
+              style={{
+                // paddingTop: 50,
+                flexDirection: 'row',
+                justifyContent: 'center',
+              }}>
+              <Menu
+                visible={visible}
+                onDismiss={closeMenu}
+                anchorPosition='bottom'
+                anchor={<Button icon="menu" onPress={openMenu} theme={{ colors: { primary: 'white' } }}></Button>}
+                // theme={{ colors: { elevation:{level2: 'black'}} }}
+                >
+                {/* <Link href="/createCommunity" asChild> */}
+                <Menu.Item
+                  title="Create Community"
+                  leadingIcon="plus-circle"
+                  onPress={() => handlePress('createCommunity')}
+                  theme={{ colors: { onSurfaceVariant: 'white', onSurface: 'white' } }}
+                />
+                {/* </Link> */}
+                <Menu.Item
+                  // onPress={() => {}}
+                  title="Settings"
+                  leadingIcon={({ color, size }) => (
+                    <Ionicons name="settings" color={color} size={size} />
+                  )}
+                  theme={{ colors: { onSurfaceVariant: 'white', onSurface: 'white' } }}
+                />
+                <Divider />
+                <Menu.Item
+                  // onPress={() => {}}
+                  title="Logout"
+                  leadingIcon="logout"
+                  theme={{ colors: { onSurfaceVariant: 'white', onSurface: 'white' } }}
+                />
+              </Menu>
+            </View>
+          
           ),
         }}
       />
@@ -64,5 +121,6 @@ export default function TabLayout() {
         }}
       />
     </Tabs>
+    </PaperProvider>
   );
 }

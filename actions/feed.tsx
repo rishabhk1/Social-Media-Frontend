@@ -1,8 +1,8 @@
 import axios from "../axios";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { Dispatch } from "@reduxjs/toolkit";
-import { setPosts, setLoading, setError, PostsState, upvoteFromFeed, undoDownvoteFromFeed, undoUpvoteFromFeed, downvoteFromFeed } from "@/state/reducers/feedSlice";
-import { DOWNVOTE, FEED_PATH, UNDO_DOWNVOTE, UNDO_UPVOTE, UPVOTE } from "@/constants/Urls";
+import { appealFromFeed, setPosts, setLoading, setError, PostsState, upvoteFromFeed, undoDownvoteFromFeed, undoUpvoteFromFeed, downvoteFromFeed, deleteFromFeed } from "@/state/reducers/feedSlice";
+import { APPEAL, DELETE, DOWNVOTE, FEED_PATH, UNDO_DOWNVOTE, UNDO_UPVOTE, UPVOTE } from "@/constants/Urls";
 
 export const fetchPosts = (userId?: string, page?: number) =>  {
     return async (dispatch) => {
@@ -146,4 +146,88 @@ export const undoDownvoteFromFeedAction = (userId?: string, postId?: string) => 
         dispatch(setError(error.message));
       }
     }
+};
+
+export const deleteFromFeedAction = (userId?: string, postId?: string) =>  {
+
+  return async (dispatch) => {
+  //   dispatch(setLoading(true));
+  //   console.log('started');
+  const formData = new URLSearchParams();
+  formData.append("args", postId);
+  formData.append("args", userId);
+    try {
+      const response = await axios.post(DELETE,formData, {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+        });
+
+      if (response.status === 200) {
+          console.log('delete',response.data);
+          dispatch(deleteFromFeed({postId}));
+        
+      } else {
+        throw new Error(response?.data?.message || "Error");
+      }
+    } catch (error) {
+      dispatch(setError(error.message));
+    }
+  }
+};
+
+// export const deleteFromFeedAction = (userId?: string, postId?: string) =>  {
+
+//   return async (dispatch) => {
+//   //   dispatch(setLoading(true));
+//   //   console.log('started');
+//   const formData = new URLSearchParams();
+//   formData.append("args", postId);
+//   formData.append("args", userId);
+//     try {
+//       const response = await axios.post(DELETE,formData, {
+//           headers: {
+//             'Content-Type': 'application/x-www-form-urlencoded',
+//           },
+//         });
+
+//       if (response.status === 200) {
+//           console.log('delete',response.data);
+//           dispatch(deleteFromFeed({postId}));
+        
+//       } else {
+//         throw new Error(response?.data?.message || "Error");
+//       }
+//     } catch (error) {
+//       dispatch(setError(error.message));
+//     }
+//   }
+// };
+
+export const appealFromFeedAction = (userId?: string, postId?: string) =>  {
+
+  return async (dispatch) => {
+  //   dispatch(setLoading(true));
+  //   console.log('started');
+  const formData = new URLSearchParams();
+  formData.append("args", postId);
+  formData.append("args", userId);
+    try {
+      const response = await axios.post(APPEAL,formData, {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+        });
+
+      if (response.status === 200) {
+          console.log('appeal',response.data);
+          dispatch(appealFromFeed({postId}));
+        
+      } else {
+        throw new Error(response?.data?.message || "Error");
+      }
+    } catch (error) {
+      dispatch(setError(error.message));
+    }
+  }
 };

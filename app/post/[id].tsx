@@ -8,7 +8,7 @@ import { user_id } from '@/constants/Urls';
 import { clearPostComment } from "@/state/reducers/postCommentSlice";
 import Comment from '@/components/Comment';
 import {Text, View, FlatList, StyleSheet, TextInput, ScrollView, Pressable,ActivityIndicator} from 'react-native';
-import {fetchPostComment, upvoteFromPCAction, undoUpvoteFromPCAction, undoDownvoteFromPCAction, downvoteFromPCAction, fetchComment } from '@/actions/postComment'
+import {fetchPostComment, appealFromPCAction, upvoteFromPCAction, undoUpvoteFromPCAction, undoDownvoteFromPCAction, downvoteFromPCAction, fetchComment,deleteFromPCAction } from '@/actions/postComment'
 import { Link, useGlobalSearchParams, useLocalSearchParams, useRouter } from 'expo-router';
 
 const initialPage = 0;
@@ -70,6 +70,8 @@ export default function PostScreen(){
                         downvoteFn={downvoteFromPCAction}
                         undoDownvoteFn={undoDownvoteFromPCAction}
                         undoUpvoteFn={undoUpvoteFromPCAction}
+                        deleteFn={deleteFromPCAction}
+                        appealFn={appealFromPCAction}
                         />
                 ) : (
                     <Comment 
@@ -78,6 +80,8 @@ export default function PostScreen(){
                         downvoteFn={downvoteFromPCAction}
                         undoDownvoteFn={undoDownvoteFromPCAction}
                         undoUpvoteFn={undoUpvoteFromPCAction}
+                        deleteFn={deleteFromPCAction}
+                        appealFn={appealFromPCAction}
                         />
                 ))}
                 contentContainerStyle={{paddingBottom:60}}
@@ -93,7 +97,7 @@ export default function PostScreen(){
                   onRefresh={onRefresh}
                 
             />
-            <Link href={`/addcomment/1`} asChild> 
+            <Link href={`/addcomment/${id}`} asChild> 
                     
                     <Pressable style={styles.textInputContainer}>
                    

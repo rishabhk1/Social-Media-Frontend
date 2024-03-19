@@ -9,7 +9,7 @@ import Comment from '@/components/Comment';
 import { useDispatch, useSelector } from 'react-redux';
 import React, { useState, useEffect } from 'react';
 import { RootState, AppDispatch } from '@/state/store';
-import {fetchPostComment, fetchPost, fetchComment, upvoteFromCommunityAction, undoUpvoteFromCommunityAction, undoDownvoteFromCommunityAction, downvoteFromCommunityAction } from '@/actions/community'
+import {fetchPostComment, appealFromCommunityAction, fetchPost, fetchComment, upvoteFromCommunityAction, undoUpvoteFromCommunityAction,deleteFromCommunityAction, undoDownvoteFromCommunityAction, downvoteFromCommunityAction, joinCommunityAction, unjoinCommunityAction } from '@/actions/community'
 import { clearCommunity } from '@/state/reducers/communitySlice';
 import { user_id } from '@/constants/Urls';
 // import {
@@ -36,6 +36,7 @@ export default function CommunityHome() {
     const description = useSelector((state: RootState) => state.community.description);
     const moderators = useSelector((state: RootState) => state.community.moderators);
     const members = useSelector((state: RootState) => state.community.members);
+    const joined = useSelector((state: RootState) => state.community.joined);
 
     const error  = useSelector((state: RootState) => state.community.error);
 
@@ -64,8 +65,13 @@ export default function CommunityHome() {
     //    key++;
     // },[]));
     const onJoinPress = () => {
-        console.warn('done'); 
-      };
+        if(joined){
+            dispatch(unjoinCommunityAction(user_id,id));
+        }
+        else{
+            dispatch(joinCommunityAction(user_id, id));
+        }
+    };
     const onRefresh = () => {
     dispatch(clearCommunity());
     //setNextPage(initialPage);
@@ -94,13 +100,29 @@ export default function CommunityHome() {
 
     const renderItem = ({item, section}) =>{
         if(selectedSection==='appealed' && section.title==='appealed'){
-            return <Post 
-                        post={item} 
-                        expand={false}
+
+            if(item.hasOwnProperty('comments')){
+                return <Post 
+                post={item} 
+                expand={false}
+                upvoteFn={upvoteFromCommunityAction}
+                downvoteFn={downvoteFromCommunityAction}
+                undoUpvoteFn={undoUpvoteFromCommunityAction}
+                undoDownvoteFn={undoDownvoteFromCommunityAction}      
+                deleteFn={deleteFromCommunityAction}
+                appealFn={appealFromCommunityAction}
+                isModerator={moderators.some(moderator => moderator.id === user_id)}
+                />;
+            }
+            return <Comment 
+                        comment={item} 
                         upvoteFn={upvoteFromCommunityAction}
                         downvoteFn={downvoteFromCommunityAction}
                         undoUpvoteFn={undoUpvoteFromCommunityAction}
                         undoDownvoteFn={undoDownvoteFromCommunityAction}      
+                        deleteFn={deleteFromCommunityAction}
+                        appealFn={appealFromCommunityAction}
+                        isModerator={moderators.some(moderator => moderator.id === user_id)}
                         />;
         }
         else if(selectedSection==='posts' && section.title==='posts'){
@@ -111,6 +133,8 @@ export default function CommunityHome() {
                     downvoteFn={downvoteFromCommunityAction}
                     undoUpvoteFn={undoUpvoteFromCommunityAction}
                     undoDownvoteFn={undoDownvoteFromCommunityAction}  
+                    deleteFn={deleteFromCommunityAction}
+                    appealFn={appealFromCommunityAction}
                     />;
         }
     };
@@ -187,7 +211,7 @@ export default function CommunityHome() {
                     </View>
                 </View>
                     <Pressable onPress={onJoinPress} style={styles.button}>
-                        <Text style={styles.buttonText}>join</Text>
+                        <Text style={styles.buttonText}>{joined?'unjoin':'join'}</Text>
                     </Pressable>
                 </View>
             </View>
@@ -263,7 +287,9 @@ const styles = StyleSheet.create({
         padding: 10,
         paddingHorizontal: 18,
         borderRadius: 50,
-        width: 69,
+        width: 85,
+        justifyContent: 'center', // Center content horizontally
+        alignItems: 'center',   // Center content vertically
         marginLeft: 6
         
     

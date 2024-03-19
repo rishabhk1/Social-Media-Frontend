@@ -1,20 +1,38 @@
 import { StyleSheet, FlatList, TextInput, TouchableOpacity } from 'react-native';
-import {useState} from 'react';
 import { Text, View } from '@/components/Themed';
 import tweets from '@/assets/data/tweets';
 import Post from '@/components/Post';
+import { fetchName } from '@/actions/search';
+import { useDispatch, useSelector } from 'react-redux';
+import { useState, useEffect } from 'react';
+import { RootState, AppDispatch } from '@/state/store';
+import { Link } from 'expo-router';
 
-const DATA = [
-    { id: '1', name: 'Apple' },
-    { id: '2', name: 'Banana' },
-    { id: '3', name: 'Cherry' },
-    { id: '4', name: 'Date' },
-    // Add more data as needed
-  ];
+// const DATA = [
+//     { id: '1', name: 'Apple' },
+//     { id: '2', name: 'Banana' },
+//     { id: '3', name: 'Cherry' },
+//     { id: '4', name: 'Date' },
+//     // Add more data as needed
+//   ];
 
 export default function Search() {
+  const dispatch = useDispatch<AppDispatch>();
+  const DATA = useSelector((state: RootState) => state.search.communityName);
     const [searchQuery, setSearchQuery] = useState('');
     const [data, setData] = useState([]);
+  
+    const onRefresh = () => {
+      //dispatch(clearProfile());
+      //setNextPage(initialPage);
+      dispatch(fetchName());
+      //setNextPage(nextPage+1);
+    };
+  
+    useEffect(() => {
+      dispatch(fetchName());
+    },[]);
+
 const handleSearch = (input:string) => {
     const filteredData = DATA.filter(item =>
     item.name.toLowerCase().includes(input.toLowerCase())
@@ -41,11 +59,13 @@ const handleItemPress = (item) => {
             data={data}
             keyExtractor={item => item.id}
             renderItem={({ item }) => (
-              <TouchableOpacity onPress={() => handleItemPress(item)}>
+              <Link href={`/community/${item.id}`} asChild>
+              <TouchableOpacity >
               <View style={styles.item}>
                 <Text style={{color: 'black'}}>{item.name}</Text>
               </View>
               </TouchableOpacity>
+              </Link>
             )}
           />}
     </View>
@@ -57,6 +77,7 @@ const styles = StyleSheet.create({
   page: {
     flex: 1,
     backgroundColor: 'white',
+    padding: 10,
   },
   input:{
     height: 40,

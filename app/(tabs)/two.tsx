@@ -1,20 +1,32 @@
-import {useState} from 'react';
-import { StyleSheet, TextInput, View, Pressable, Text, SafeAreaView, FlatList, TouchableOpacity, Platform, StatusBar } from 'react-native';
+import { StyleSheet, TextInput, View, Pressable, Text, SafeAreaView, FlatList, TouchableOpacity, Platform, StatusBar, Alert, ActivityIndicator } from 'react-native';
 import {Link, useRouter} from 'expo-router';
+import { useDispatch, useSelector } from 'react-redux';
+import { useState, useEffect } from 'react';
+import { fetchName } from '@/actions/createPost';
+import { RootState, AppDispatch } from '@/state/store';
+import { createPostAction } from '@/actions/createPost';
+import { user_id } from '@/constants/Urls';
+import { fetchPosts } from '@/actions/feed';
+import { clearFeed } from '@/state/reducers/feedSlice';
 
-const DATA = [
-  { id: '1', name: 'Apple' },
-  { id: '2', name: 'Banana' },
-  { id: '3', name: 'Cherry' },
-  { id: '4', name: 'Date' },
-  // Add more data as needed
-];
+// const DATA = [
+//   { id: '1', name: 'Apple' },
+//   { id: '2', name: 'Banana' },
+//   { id: '3', name: 'Cherry' },
+//   { id: '4', name: 'Date' },
+//   // Add more data as needed
+// ];
 
 export default function TabTwoScreen() {
+  const dispatch = useDispatch<AppDispatch>();
+  const DATA = useSelector((state: RootState) => state.search.communityName);
+  const error = useSelector((state: RootState) => state.createPost.error);
+  const loading = useSelector((state: RootState) => state.createPost.loading);
   const router = useRouter();
   const [title, setTitle] = useState("");
+  const [communityId, setCommunityId] = useState("");
   const [description, setDescription] = useState("");  
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [data, setData] = useState([]);
     // [
     // { id: '1', name: 'Apple' },
@@ -23,7 +35,18 @@ export default function TabTwoScreen() {
     // { id: '4', name: 'Date' },
     // Add more data as needed
   // ]
-  
+  const onRefresh = () => {
+    //dispatch(clearProfile());
+    //setNextPage(initialPage);
+    dispatch(fetchName());
+    //setNextPage(nextPage+1);
+  };
+
+  useEffect(() => {
+    dispatch(fetchName());
+  },[]);
+
+
   const handleSearch = (input:string) => {
     const filteredData = DATA.filter(item =>
       item.name.toLowerCase().includes(input.toLowerCase())
@@ -35,14 +58,40 @@ export default function TabTwoScreen() {
 
   const handleItemPress = (item) => {
     setSearchQuery(item.name);
+    setCommunityId(item.id)
     setData([]);
   };
 
   const onPostPress = () => {
-    console.warn('done', title, description); 
-    setTitle("");
-    setDescription("");
-    router.back();
+    // console.warn('done', title, description); 
+    if(title.trim() === ''){
+      Alert.alert('Error!', 'Please enter title');
+      return;
+    }
+    if(description.trim() === ''){
+      Alert.alert('Error!', 'Please enter description');
+      return;
+    }
+    if(communityId === ''){
+      Alert.alert('Error!', 'Please select a community');
+      return;
+    }
+    dispatch(createPostAction(communityId,title, description, user_id));
+    if(error === null){
+      setTitle("");
+      setDescription("");
+      setCommunityId("");
+      setSearchQuery("");
+    }
+    // if(!title && !description && !communityId && !searchQuery && !loading){
+    //   router.back();
+    // }
+    //dispatch(clearFeed());
+    if(!loading){
+      //dispatch(fetchPosts(user_id,0));
+      router.back();
+    }
+    
   };
   return (
     <SafeAreaView style={styles.safeAreaContainer}>
@@ -87,9 +136,11 @@ export default function TabTwoScreen() {
             multiline
             //rnumberOfLines={5}
             style={styles.description}
+            value={description}
             onChangeText={(newValue) => setDescription(newValue)}
             selectionColor="black"
             />
+            {loading && <ActivityIndicator/>}
           </>}
         </View>
       </View>

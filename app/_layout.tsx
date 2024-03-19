@@ -59,6 +59,7 @@ function RootLayoutNav() {
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
         <Stack.Screen name="addcomment/[parentId]" options={{ headerShown: false}}/>
+        <Stack.Screen name="createCommunity" options={{ headerShown: false}}/>
       </Stack>
     </ThemeProvider>
   );

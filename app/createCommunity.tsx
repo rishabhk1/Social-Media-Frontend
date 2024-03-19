@@ -7,16 +7,21 @@ import { RootState, AppDispatch } from '@/state/store';
 import { fetchPostComment } from '@/actions/postComment';
 import { fetchPostComment as  fetchCommentComment } from '@/actions/comment';
 import { user_id } from '@/constants/Urls';
+import { fetchName } from '@/actions/createCommunity';
 import { createCommentAction } from '@/actions/createComment';
+import { createCommunityAction } from '@/actions/createCommunity';
 
-export default function AddComment() {
-  const {parentId} = useLocalSearchParams();
+export default function CreateCommunity() {
+  //const {parentId} = useLocalSearchParams();
   //console.warn(parentId);  
   const dispatch = useDispatch<AppDispatch>();
-  const error = useSelector((state: RootState) => state.createComment.error);
-  const loading = useSelector((state: RootState) => state.createComment.loading);
+  const error = useSelector((state: RootState) => state.createCommunity.error);
+  const loading = useSelector((state: RootState) => state.createCommunity.loading);
+  const DATA = useSelector((state: RootState) => state.search.communityName);
   const router = useRouter();
   const [text, setText] = useState("");
+  const[description, setDescription] = useState("");
+  const [message, setMessage] = useState("");
 //   const [searchQuery, setSearchQuery] = useState('');
 //   const [data, setData] = useState([]);
     // [
@@ -42,13 +47,47 @@ export default function AddComment() {
 //     setSearchQuery(item.name);
 //     setData([]);
 //   };
+    const onRefresh = () => {
+        //dispatch(clearProfile());
+        //setNextPage(initialPage);
+        dispatch(fetchName());
+        //setNextPage(nextPage+1);
+    };
+
+    useEffect(() => {
+        dispatch(fetchName());
+    },[]);
+
+    const handleSearch = (input:string) => {
+        // const filteredData = DATA.filter(item =>
+        //   item.name.toLowerCase().includes(input.toLowerCase())
+        // );
+        // setSearchQuery(input);
+        // setData(filteredData);
+        // console.log(filteredData);
+        const check=DATA.some(item => item.name.trim().toLowerCase() === input.trim().toLowerCase());
+        if(input.trim() === ''){
+            setMessage('');
+        }
+        else if(check){
+            setMessage("community name already exists");
+        }
+        else{
+            setMessage("community name is available");
+        }
+      };
+
 
   const onPostPress = () => {
     if(text.trim() === ''){
-      Alert.alert('Error!', 'Please enter description');
+      Alert.alert('Error!', 'Please enter community name');
       return;
     }
-    dispatch(createCommentAction(parentId, text, user_id))
+    if(description.trim() === ''){
+        Alert.alert('Error!', 'Please enter description');
+        return;
+    }
+    dispatch(createCommunityAction(user_id, text, description))
     if(error === null){
       setText("");
     }
@@ -66,18 +105,28 @@ export default function AddComment() {
       <View style={styles.buttonContainer}>
         <Link href="../" style={{fontSize: 18}}>cancel</Link>
           <Pressable onPress={onPostPress} style={styles.button}>
-            <Text style={styles.buttonText}>post</Text>
+            <Text style={styles.buttonText}>create</Text>
           </Pressable>
         </View>
         <View>
           { <>
+        <Text style={styles.message}>{message}</Text>
           <TextInput 
-            placeholder="enter title" 
+            placeholder="enter community name" 
             multiline
             //numberOfLines={2}
             style={styles.title}
             value={text}
-            onChangeText={(newValue) => setText(newValue)}
+            onChangeText={(newValue) => {setText(newValue); handleSearch(newValue)}}
+            selectionColor="black"
+            />
+            <TextInput 
+            placeholder="enter description" 
+            multiline
+            //rnumberOfLines={5}
+            style={styles.description}
+            value={description}
+            onChangeText={(newValue) => setDescription(newValue)}
             selectionColor="black"
             />
           </>}
@@ -152,5 +201,8 @@ const styles = StyleSheet.create({
   description: {
     fontSize: 18,
     color: '#333',
+  },
+  message:{
+    fontSize: 10
   }
 });

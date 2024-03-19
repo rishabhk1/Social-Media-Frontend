@@ -1,4 +1,4 @@
-import { StyleSheet, Image, View, Text, Pressable } from 'react-native';
+import { StyleSheet, Image, View, Text, Pressable, Alert } from 'react-native';
 import { Entypo    } from '@expo/vector-icons';
 import {MaterialCommunityIcons} from '@expo/vector-icons';
 import IconButton from './IconButton';
@@ -7,8 +7,60 @@ import {Link} from 'expo-router';
 import { useDispatch } from 'react-redux';
 import { user_id } from '@/constants/Urls';
 import { AppDispatch } from '@/state/store';
+import { showFromCommunityAction, hideFromCommunityAction } from '@/actions/community';
 
-const Comment = ({comment, upvoteFn, downvoteFn, undoDownvoteFn,undoUpvoteFn}) => {
+const createDeleteAlert = (dispatch, deleteFn, id) =>
+Alert.alert('Delete', 'do you want to delete this comment', [
+  {text: 'OK', onPress: () => dispatch(deleteFn(user_id, id))},
+  {
+    text: 'Cancel',
+    onPress: () => console.log('Cancel Pressed'),
+    style: 'cancel',
+  },
+]);
+
+const moderatorVoteAlert = (dispatch, id) =>
+Alert.alert('Moderator Vote', 'select either show or hide for this post', [
+  {text: 'Show', onPress: () => dispatch(showFromCommunityAction(user_id, id))},
+  {
+    text: 'Hide',
+    onPress: () => dispatch(hideFromCommunityAction(user_id, id)),
+
+  },
+],{ cancelable: true});
+
+// const appealAlert = (dispatch, appealFn, id, isAppealed) => {
+//   if(isAppealed){
+//     return Alert.alert('Appeal', 'this comment is already appealed')
+//   }
+//   return Alert.alert('appeal', 'do you want to appeal this comment', [
+//     {text: 'OK', onPress: () => dispatch(appealFn(user_id, id))},
+//     {
+//       text: 'Cancel',
+//       onPress: () => console.log('Cancel Pressed'),
+//       style: 'cancel',
+//     },
+//   ],{ cancelable: true});
+// }
+
+const appealAlert = (dispatch, appealFn, id, isAppealed, showCount) => {
+  if(showCount==-100){
+    return Alert.alert('Appeal', 'this comment was already appealed and moderators decided to show the comment')
+  }
+  if(isAppealed){
+    return Alert.alert('Appeal', 'this comment is already appealed')
+  }
+  return Alert.alert('appeal', 'do you want to appeal this comment', [
+    {text: 'OK', onPress: () => dispatch(appealFn(user_id, id))},
+    {
+      text: 'Cancel',
+      onPress: () => console.log('Cancel Pressed'),
+      style: 'cancel',
+    },
+  ],{ cancelable: true});
+}
+
+const Comment = ({comment, upvoteFn, downvoteFn, undoDownvoteFn,undoUpvoteFn,deleteFn, appealFn, isModerator=false}) => {
   const dispatch = useDispatch<AppDispatch>();
     console.log(comment);
     return (
@@ -31,13 +83,14 @@ const Comment = ({comment, upvoteFn, downvoteFn, undoDownvoteFn,undoUpvoteFn}) =
               </Link>
             </Pressable>
             <Text style={styles.username}>2h</Text>
-            <Entypo name="dots-three-horizontal" size={16} color="gray" style={{marginLeft: 'auto'}}/>
+            {isModerator && <Entypo name="dots-three-horizontal" size={16} color="black" style={{marginLeft: 'auto'}} onPress={()=>moderatorVoteAlert(dispatch, comment.id)}/>}
           </View>
           <Text style={styles.content}>{comment.content}</Text>
           <View style={styles.footer}>
               {/* <IconButton icon='arrow-up' text={post.score}/>
               <IconButton icon='comment-outline' text={post.comments?.length}/>
               <IconButton icon='share-outline' text=''/> */}
+            <View style={{    flexDirection: 'row', alignItems: 'center'}}>
             <View style={{flexDirection:'row',alignItems:'center', marginRight:40}}>
               <MaterialCommunityIcons  
                 name={'arrow-up'} 
@@ -63,6 +116,15 @@ const Comment = ({comment, upvoteFn, downvoteFn, undoDownvoteFn,undoUpvoteFn}) =
             </View>
             <View style={{flexDirection:'row',alignItems:'center', marginRight:40}}>
               <MaterialCommunityIcons  name={'share-outline'} size={22} color="gray"/>
+            </View>
+            </View>
+            <View style={{    flexDirection: 'row', alignItems: 'center'}}>
+              {((comment.author === user_id) && <View style={{marginRight:10}}>
+                <MaterialCommunityIcons  name={'delete-outline'} size={22} color="gray" onPress={() => createDeleteAlert(dispatch, deleteFn, comment.id)}/>
+              </View>)}
+              <View>
+                <MaterialCommunityIcons  name={'flag-variant-outline'} size={22} color="gray" onPress={() => appealAlert(dispatch, appealFn, comment.id, comment.isAppealed, comment.showCount)}/>
+              </View>
             </View>
           </View>
         </View>
@@ -101,6 +163,8 @@ const styles = StyleSheet.create({
     footer:{
       flexDirection: 'row',
       marginVertical: 5,
+      justifyContent: 'space-between',
+      alignItems: 'center',
     }
   });
  

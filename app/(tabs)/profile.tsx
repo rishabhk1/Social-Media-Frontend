@@ -6,7 +6,7 @@ import Comment from '@/components/Comment';
 import { useDispatch, useSelector } from 'react-redux';
 import { useState, useEffect } from 'react';
 import { RootState, AppDispatch } from '@/state/store';
-import {fetchPost, fetchComment, fetchPostComment, upvoteFromProfileAction, downvoteFromProfileAction, undoDownvoteFromProfileAction, undoUpvoteFromProfileAction} from '@/actions/profile'
+import {fetchPost, fetchComment, fetchPostComment, upvoteFromProfileAction, downvoteFromProfileAction, undoDownvoteFromProfileAction, undoUpvoteFromProfileAction, deleteFromProfileAction, appealFromProfileAction} from '@/actions/profile'
 import { clearProfile } from '@/state/reducers/profileSlice';
 import { user_id } from '@/constants/Urls';
 
@@ -63,6 +63,8 @@ export default function Profile({id=user_id}) {
                     downvoteFn={downvoteFromProfileAction}
                     undoUpvoteFn={undoUpvoteFromProfileAction}
                     undoDownvoteFn={undoDownvoteFromProfileAction}
+                    deleteFn={deleteFromProfileAction}
+                    appealFn={appealFromProfileAction}
                     />;
         }
         else if(selectedSection==='posts' && section.title==='posts'){
@@ -73,6 +75,8 @@ export default function Profile({id=user_id}) {
                     downvoteFn={downvoteFromProfileAction}
                     undoUpvoteFn={undoUpvoteFromProfileAction}
                     undoDownvoteFn={undoDownvoteFromProfileAction}
+                    deleteFn={deleteFromProfileAction}
+                    appealFn={appealFromProfileAction}
                     />;
         }
     };

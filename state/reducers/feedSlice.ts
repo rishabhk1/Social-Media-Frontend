@@ -20,6 +20,9 @@ interface Post {
     communityName: string;
     hasUpvoted: boolean;
     hasDownvoted: boolean;
+    isAppealed: boolean;
+    hasShowvoted: boolean;
+    hasHidevoted: boolean;
   }
 
 export interface PostsState {
@@ -141,13 +144,33 @@ export const feedSlice = createSlice({
           ...state,
           posts: updatedPosts,
         };
+      },
+      deleteFromFeed(state,action){
+        const updatedPosts = state.posts.filter((post) =>
+          post.id !== action.payload.postId
+        )
+        return {
+          ...state,
+          posts: updatedPosts,
+        };
+      },
+      appealFromFeed(state,action){
+        const updatedPosts = state.posts.map((post) =>
+          post.id === action.payload.postId
+            ? { ...post, isAppealed: true }
+            : post
+        );
+        return {
+          ...state,
+          posts: updatedPosts,
+        };
       }
       // You can add more reducers here for specific actions related to post management
     },
   });
   
   // Export the actions
-export const { setPosts, setLoading, setError, clearFeed, undoDownvoteFromFeed, undoUpvoteFromFeed, upvoteFromFeed, downvoteFromFeed } = feedSlice.actions;
+export const { appealFromFeed, deleteFromFeed, setPosts, setLoading, setError, clearFeed, undoDownvoteFromFeed, undoUpvoteFromFeed, upvoteFromFeed, downvoteFromFeed } = feedSlice.actions;
 
 
 export default feedSlice.reducer;

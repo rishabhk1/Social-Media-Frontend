@@ -7,7 +7,7 @@ import { useState, useEffect } from 'react';
 import { RootState, AppDispatch } from '@/state/store';
 import { user_id } from '@/constants/Urls';
 import {Text, View, FlatList, StyleSheet, ActivityIndicator, Pressable, TextInput} from 'react-native';
-import {fetchPostComment, upvoteFromCommentAction, undoUpvoteFromCommentAction, undoDownvoteFromCommentAction, downvoteFromCommentAction, fetchComment } from '@/actions/comment'
+import {appealFromCommentAction, fetchPostComment, upvoteFromCommentAction, undoUpvoteFromCommentAction, undoDownvoteFromCommentAction, downvoteFromCommentAction, fetchComment,deleteFromCommentAction } from '@/actions/comment'
 import { useGlobalSearchParams, useLocalSearchParams, Link  } from 'expo-router';
 import { clearComments } from '@/state/reducers/commentSlice';
 
@@ -62,6 +62,8 @@ export default function CommentScreen(){
                         downvoteFn={downvoteFromCommentAction}
                         undoDownvoteFn={undoDownvoteFromCommentAction}
                         undoUpvoteFn={undoUpvoteFromCommentAction}
+                        deleteFn={deleteFromCommentAction}
+                        appealFn={appealFromCommentAction}
                         />)}
                 onEndReached={() => {
                     if (!loading && nextPage>0) {
@@ -75,7 +77,7 @@ export default function CommentScreen(){
                     refreshing={loading}
                     onRefresh={onRefresh}
                 />
-            <Link href={`/addcomment/1`} asChild> 
+            <Link href={`/addcomment/${id}`} asChild> 
                     
                     <Pressable style={styles.textInputContainer}>
                    
