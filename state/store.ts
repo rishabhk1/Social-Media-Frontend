@@ -19,7 +19,7 @@ export const store = configureStore({
     search: searchReducer,
     createPost: createPostReducer,
     createComment: createCommentReducer,
-    createCommunity: createCommentReducer
+    createCommunity: createCommunityReducer
   },
 });
 

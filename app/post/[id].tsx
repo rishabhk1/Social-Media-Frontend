@@ -10,6 +10,7 @@ import Comment from '@/components/Comment';
 import {Text, View, FlatList, StyleSheet, TextInput, ScrollView, Pressable,ActivityIndicator} from 'react-native';
 import {fetchPostComment, appealFromPCAction, upvoteFromPCAction, undoUpvoteFromPCAction, undoDownvoteFromPCAction, downvoteFromPCAction, fetchComment,deleteFromPCAction } from '@/actions/postComment'
 import { Link, useGlobalSearchParams, useLocalSearchParams, useRouter } from 'expo-router';
+import ErrorView from '@/components/ErrorView';
 
 const initialPage = 0;
 
@@ -47,6 +48,19 @@ export default function PostScreen(){
         dispatch(fetchPostComment(user_id, id, initialPage));
         //setNextPage(nextPage+1);
       },[]);
+      
+      const retryAction = () => {
+        // Implement your retry logic here
+        // For example, you might clear the error and attempt to fetch data again
+        onRefresh();
+        
+        // Fetch data or perform other actions here
+     };
+      if (error) {
+        return (
+          <ErrorView error={error} retryAction={retryAction} />
+       );
+      }
     return (
         <View style={styles.page}>
             {/* <ScrollView>

@@ -4,6 +4,10 @@ import { Dispatch } from "@reduxjs/toolkit";
 import { appealFromProfile, setTargetUser, setPosts, setComments, setLoading, setError, clearProfile, upvoteFromProfile, downvoteFromProfile, undoUpvoteFromProfile, undoDownvoteFromProfile, deleteFromProfile } from "@/state/reducers/profileSlice";
 import { DOWNVOTE, UNDO_DOWNVOTE, UNDO_UPVOTE, UPVOTE, GET_USER, GET_PROFILE_POSTS, GET_PROFILE_COMMENTS, APPEAL, DELETE} from "@/constants/Urls";
 
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 export const fetchPostComment = (targetUserId?: string, userId?: string ,pageNoPost?: number, pageNoComment?: number) =>  {
     console.log('postid', userId, targetUserId);
     return async (dispatch) => {
@@ -45,7 +49,7 @@ export const fetchPostComment = (targetUserId?: string, userId?: string ,pageNoP
         } else {
           // Handle non-200 status codes here (e.g., dispatch error action)
           //console.error("Unexpected status code:", response.status);
-          throw new Error(response1?.data?.message || "Error");
+          throw new Error(response1?.data || "Error");
         }
         if (response2.status === 200) {
             console.log(response2.data);
@@ -54,7 +58,7 @@ export const fetchPostComment = (targetUserId?: string, userId?: string ,pageNoP
           } else {
             // Handle non-200 status codes here (e.g., dispatch error action)
             //console.error("Unexpected status code:", response.status);
-            throw new Error(response2?.data?.message || "Error");
+            throw new Error(response2?.data || "Error");
           }
           if (response3.status === 200) {
             console.log(response3);
@@ -68,7 +72,7 @@ export const fetchPostComment = (targetUserId?: string, userId?: string ,pageNoP
           } else {
             // Handle non-200 status codes here (e.g., dispatch error action)
             //console.error("Unexpected status code:", response.status);
-            throw new Error(response3?.data?.message || "Error");
+            throw new Error(response3?.data || "Error");
           }
       } catch (error) {
         dispatch(setError(error.message));
@@ -104,7 +108,7 @@ export const fetchComment = (targetUserId?: string, userId?: string ,page?: numb
               } else {
                 // Handle non-200 status codes here (e.g., dispatch error action)
                 //console.error("Unexpected status code:", response.status);
-                throw new Error(response1?.data?.message || "Error");
+                throw new Error(response1?.data || "Error");
             }
       } catch (error) {
         dispatch(setError(error.message));
@@ -140,7 +144,7 @@ export const fetchPost = (targetUserId?: string, userId?: string ,page?: number)
               } else {
                 // Handle non-200 status codes here (e.g., dispatch error action)
                 //console.error("Unexpected status code:", response.status);
-                throw new Error(response1?.data?.message || "Error");
+                throw new Error(response1?.data || "Error");
             }
       } catch (error) {
         dispatch(setError(error.message));
@@ -171,7 +175,7 @@ export const upvoteFromProfileAction= (userId?: string, postId?: string) =>  {
             if(response.data) dispatch(upvoteFromProfile({postId}));
           
         } else {
-          throw new Error(response?.data?.message || "Error");
+          throw new Error(response?.data || "Error");
         }
       } catch (error) {
         dispatch(setError(error.message));
@@ -199,7 +203,7 @@ export const downvoteFromProfileAction = (userId?: string, postId?: string) =>  
             if(response.data) dispatch(downvoteFromProfile({postId}));
           
         } else {
-          throw new Error(response?.data?.message || "Error");
+          throw new Error(response?.data || "Error");
         }
       } catch (error) {
         dispatch(setError(error.message));
@@ -229,7 +233,7 @@ export const undoUpvoteFromProfileAction = (userId?: string, postId?: string) =>
             if(response.data) dispatch(undoUpvoteFromProfile({postId}));
           
         } else {
-          throw new Error(response?.data?.message || "Error");
+          throw new Error(response?.data || "Error");
         }
       } catch (error) {
         dispatch(setError(error.message));
@@ -257,7 +261,7 @@ export const undoDownvoteFromProfileAction = (userId?: string, postId?: string) 
             if(response.data) dispatch(undoDownvoteFromProfile({postId}));
           
         } else {
-          throw new Error(response?.data?.message || "Error");
+          throw new Error(response?.data || "Error");
         }
       } catch (error) {
         dispatch(setError(error.message));
@@ -268,7 +272,7 @@ export const undoDownvoteFromProfileAction = (userId?: string, postId?: string) 
 export const deleteFromProfileAction = (userId?: string, postId?: string) =>  {
 
   return async (dispatch) => {
-  //   dispatch(setLoading(true));
+    dispatch(setLoading(true));
   //   console.log('started');
   const formData = new URLSearchParams();
   formData.append("args", postId);
@@ -283,12 +287,15 @@ export const deleteFromProfileAction = (userId?: string, postId?: string) =>  {
       if (response.status === 200) {
           console.log('delete',response.data);
           dispatch(deleteFromProfile({postId}));
+          await sleep(1500);
         
       } else {
-        throw new Error(response?.data?.message || "Error");
+        throw new Error(response?.data || "Error");
       }
     } catch (error) {
       dispatch(setError(error.message));
+    } finally {
+      dispatch(setLoading(false));
     }
   }
 };
@@ -296,7 +303,7 @@ export const deleteFromProfileAction = (userId?: string, postId?: string) =>  {
 export const appealFromProfileAction = (userId?: string, postId?: string) =>  {
 
   return async (dispatch) => {
-  //   dispatch(setLoading(true));
+    dispatch(setLoading(true));
   //   console.log('started');
   const formData = new URLSearchParams();
   formData.append("args", postId);
@@ -311,12 +318,15 @@ export const appealFromProfileAction = (userId?: string, postId?: string) =>  {
       if (response.status === 200) {
           console.log('appeal',response.data);
           dispatch(appealFromProfile({postId}));
+          await sleep(1500);
         
       } else {
-        throw new Error(response?.data?.message || "Error");
+        throw new Error(response?.data || "Error");
       }
     } catch (error) {
       dispatch(setError(error.message));
+    } finally {
+      dispatch(setLoading(false));
     }
   }
 };

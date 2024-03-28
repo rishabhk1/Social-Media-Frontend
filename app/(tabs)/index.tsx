@@ -10,6 +10,7 @@ import { user_id } from '@/constants/Urls';
 import { clearFeed } from "@/state/reducers/feedSlice";
 import { Button, Menu, Divider, PaperProvider } from 'react-native-paper';
 import { useFocusEffect } from '@react-navigation/native';
+import ErrorView from '@/components/ErrorView';
 
 const initialPage = 0;
 
@@ -42,7 +43,16 @@ export default function TabOneScreen() {
     //setNextPage(nextPage+1);
   },[]);
 
+  const retryAction = () => {
+    onRefresh();
+  };
+  if (error) {
+    return (
+      <ErrorView error={error} retryAction={retryAction} />
+   );
+  }
   return (
+
     <View style={styles.page}>
       {/* <PaperProvider>
       <View

@@ -4,6 +4,10 @@ import { Dispatch } from "@reduxjs/toolkit";
 import { appealFromComment, setPost, setComments, setLoading, setError, clearComments, upvoteFromComment, downvoteFromComment, undoUpvoteFromComment, undoDownvoteFromComment, deleteFromComment } from "@/state/reducers/commentSlice";
 import { DOWNVOTE, COMMENT_FEED, UNDO_DOWNVOTE, UNDO_UPVOTE, UPVOTE, GET_POST, GET_COMMENT, APPEAL, DELETE } from "@/constants/Urls";
 
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 export const fetchPostComment = (userId?: string, postId?: string ,page?: number) =>  {
     console.log('postid', userId, postId, page);
     return async (dispatch) => {
@@ -39,7 +43,7 @@ export const fetchPostComment = (userId?: string, postId?: string ,page?: number
         } else {
           // Handle non-200 status codes here (e.g., dispatch error action)
           //console.error("Unexpected status code:", response.status);
-          throw new Error(response1?.data?.message || "Error");
+          throw new Error(response1?.data || "Error");
         }
         if (response2.status === 200) {
             console.log(response2.data);
@@ -48,7 +52,7 @@ export const fetchPostComment = (userId?: string, postId?: string ,page?: number
           } else {
             // Handle non-200 status codes here (e.g., dispatch error action)
             //console.error("Unexpected status code:", response.status);
-            throw new Error(response2?.data?.message || "Error");
+            throw new Error(response2?.data || "Error");
           }
       } catch (error) {
         dispatch(setError(error.message));
@@ -84,7 +88,7 @@ export const fetchComment = (userId?: string, postId?: string ,page?: number) =>
               } else {
                 // Handle non-200 status codes here (e.g., dispatch error action)
                 //console.error("Unexpected status code:", response.status);
-                throw new Error(response1?.data?.message || "Error");
+                throw new Error(response1?.data || "Error");
             }
       } catch (error) {
         dispatch(setError(error.message));
@@ -115,7 +119,7 @@ export const upvoteFromCommentAction= (userId?: string, postId?: string) =>  {
             if(response.data) dispatch(upvoteFromComment({postId}));
           
         } else {
-          throw new Error(response?.data?.message || "Error");
+          throw new Error(response?.data || "Error");
         }
       } catch (error) {
         dispatch(setError(error.message));
@@ -143,7 +147,7 @@ export const downvoteFromCommentAction = (userId?: string, postId?: string) =>  
             if(response.data) dispatch(downvoteFromComment({postId}));
           
         } else {
-          throw new Error(response?.data?.message || "Error");
+          throw new Error(response?.data || "Error");
         }
       } catch (error) {
         dispatch(setError(error.message));
@@ -173,7 +177,7 @@ export const undoUpvoteFromCommentAction = (userId?: string, postId?: string) =>
             if(response.data) dispatch(undoUpvoteFromComment({postId}));
           
         } else {
-          throw new Error(response?.data?.message || "Error");
+          throw new Error(response?.data || "Error");
         }
       } catch (error) {
         dispatch(setError(error.message));
@@ -201,7 +205,7 @@ export const undoDownvoteFromCommentAction = (userId?: string, postId?: string) 
             if(response.data) dispatch(undoDownvoteFromComment({postId}));
           
         } else {
-          throw new Error(response?.data?.message || "Error");
+          throw new Error(response?.data || "Error");
         }
       } catch (error) {
         dispatch(setError(error.message));
@@ -212,7 +216,7 @@ export const undoDownvoteFromCommentAction = (userId?: string, postId?: string) 
 export const deleteFromCommentAction = (userId?: string, postId?: string) =>  {
 
   return async (dispatch) => {
-  //   dispatch(setLoading(true));
+    dispatch(setLoading(true));
   //   console.log('started');
   const formData = new URLSearchParams();
   formData.append("args", postId);
@@ -227,12 +231,15 @@ export const deleteFromCommentAction = (userId?: string, postId?: string) =>  {
       if (response.status === 200) {
           console.log('delete',response.data);
           dispatch(deleteFromComment({postId}));
+          await sleep(1500);
         
       } else {
-        throw new Error(response?.data?.message || "Error");
+        throw new Error(response?.data || "Error");
       }
     } catch (error) {
       dispatch(setError(error.message));
+    } finally {
+      dispatch(setLoading(false));
     }
   }
 };
@@ -240,7 +247,7 @@ export const deleteFromCommentAction = (userId?: string, postId?: string) =>  {
 export const appealFromCommentAction = (userId?: string, postId?: string) =>  {
 
   return async (dispatch) => {
-  //   dispatch(setLoading(true));
+    dispatch(setLoading(true));
   //   console.log('started');
   const formData = new URLSearchParams();
   formData.append("args", postId);
@@ -255,12 +262,15 @@ export const appealFromCommentAction = (userId?: string, postId?: string) =>  {
       if (response.status === 200) {
           console.log('appeal',response.data);
           dispatch(appealFromComment({postId}));
+          await sleep(1500);
         
       } else {
-        throw new Error(response?.data?.message || "Error");
+        throw new Error(response?.data || "Error");
       }
     } catch (error) {
       dispatch(setError(error.message));
+    } finally {
+      dispatch(setLoading(false));
     }
   }
 };

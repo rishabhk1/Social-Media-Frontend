@@ -34,8 +34,10 @@ export interface createCommunityState {
       setError(state, action) {
         state.error = action.payload;
       },
-      clearSearch(state){
+      clearCreateCommunity(state){
         state.error=null;
+        state.loading=false;
+        state.communityName=[];
       },
       setLoading(state, action) {
         state.loading = action.payload;
@@ -45,7 +47,7 @@ export interface createCommunityState {
   });
   
   // Export the actions
-export const { setName, setError, clearSearch, setLoading} = createCommunitySlice.actions;
+export const { setName, setError, clearCreateCommunity, setLoading} = createCommunitySlice.actions;
 
 
 export default createCommunitySlice.reducer;

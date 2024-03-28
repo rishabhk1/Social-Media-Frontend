@@ -1,4 +1,4 @@
-import { StyleSheet, TextInput, View, Pressable, Text, SafeAreaView, FlatList, TouchableOpacity, Platform, StatusBar, Alert } from 'react-native';
+import { StyleSheet, TextInput, View, Pressable, Text, SafeAreaView, FlatList, TouchableOpacity, Platform, StatusBar, Alert, ActivityIndicator } from 'react-native';
 import {Link, useRouter} from 'expo-router';
 import { useLocalSearchParams, useGlobalSearchParams } from 'expo-router';
 import { useDispatch, useSelector } from 'react-redux';
@@ -10,6 +10,8 @@ import { user_id } from '@/constants/Urls';
 import { fetchName } from '@/actions/createCommunity';
 import { createCommentAction } from '@/actions/createComment';
 import { createCommunityAction } from '@/actions/createCommunity';
+import ErrorView from '@/components/ErrorView';
+import { clearCreateCommunity } from '@/state/reducers/createCommunitySlice';
 
 export default function CreateCommunity() {
   //const {parentId} = useLocalSearchParams();
@@ -17,11 +19,12 @@ export default function CreateCommunity() {
   const dispatch = useDispatch<AppDispatch>();
   const error = useSelector((state: RootState) => state.createCommunity.error);
   const loading = useSelector((state: RootState) => state.createCommunity.loading);
-  const DATA = useSelector((state: RootState) => state.search.communityName);
+  const DATA = useSelector((state: RootState) => state.createCommunity.communityName);
   const router = useRouter();
   const [text, setText] = useState("");
   const[description, setDescription] = useState("");
   const [message, setMessage] = useState("");
+  const [justMounted, setJustMounted] = useState(true); // State to track if the component has just mounted
 //   const [searchQuery, setSearchQuery] = useState('');
 //   const [data, setData] = useState([]);
     // [
@@ -56,7 +59,14 @@ export default function CreateCommunity() {
 
     useEffect(() => {
         dispatch(fetchName());
+        setJustMounted(false);
     },[]);
+
+    useEffect(() => {
+      if (!loading && !justMounted) {
+        router.back();
+      }
+   }, [loading, router]);
 
     const handleSearch = (input:string) => {
         // const filteredData = DATA.filter(item =>
@@ -90,6 +100,7 @@ export default function CreateCommunity() {
     dispatch(createCommunityAction(user_id, text, description))
     if(error === null){
       setText("");
+      setDescription("");
     }
     // if(parentId.startsWith('p')){
     //   dispatch(fetchPostComment( user_id, parentId,0));
@@ -97,8 +108,22 @@ export default function CreateCommunity() {
     // else{
     //   dispatch(fetchCommentComment( user_id, parentId, 0));
     // }
-    router.back();
+    //router.back();
   };
+  const retryAction = () => {
+    // Implement your retry logic here
+    // For example, you might clear the error and attempt to fetch data again
+    setJustMounted(false);
+    dispatch(clearCreateCommunity());
+    dispatch(fetchName());
+    
+    // Fetch data or perform other actions here
+ };
+  if (error) {
+    return (
+      <ErrorView error={error} retryAction={retryAction} />
+   );
+  }
   return (
     <SafeAreaView style={styles.safeAreaContainer}>
       <View style={styles.container}>
@@ -130,6 +155,7 @@ export default function CreateCommunity() {
             selectionColor="black"
             />
           </>}
+          {(loading && <ActivityIndicator/>)}
         </View>
       </View>
       </SafeAreaView>

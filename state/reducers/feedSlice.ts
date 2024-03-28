@@ -74,6 +74,8 @@ export const feedSlice = createSlice({
       clearFeed(state){
         state.posts=[];
         state.nextPage=0;
+        state.loading= false;
+        state.error= null;
       },
       upvoteFromFeed(state, action){
         // console.log(action.payload.postId);

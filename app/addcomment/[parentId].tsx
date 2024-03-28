@@ -1,4 +1,4 @@
-import { StyleSheet, TextInput, View, Pressable, Text, SafeAreaView, FlatList, TouchableOpacity, Platform, StatusBar, Alert } from 'react-native';
+import { StyleSheet, TextInput, View, Pressable, Text, SafeAreaView, FlatList, TouchableOpacity, Platform, StatusBar, Alert, ActivityIndicator } from 'react-native';
 import {Link, useRouter} from 'expo-router';
 import { useLocalSearchParams, useGlobalSearchParams } from 'expo-router';
 import { useDispatch, useSelector } from 'react-redux';
@@ -8,6 +8,8 @@ import { fetchPostComment } from '@/actions/postComment';
 import { fetchPostComment as  fetchCommentComment } from '@/actions/comment';
 import { user_id } from '@/constants/Urls';
 import { createCommentAction } from '@/actions/createComment';
+import ErrorView from '@/components/ErrorView';
+import { clearCreateComment } from '@/state/reducers/createCommentSlice';
 
 export default function AddComment() {
   const {parentId} = useLocalSearchParams();
@@ -17,6 +19,7 @@ export default function AddComment() {
   const loading = useSelector((state: RootState) => state.createComment.loading);
   const router = useRouter();
   const [text, setText] = useState("");
+  const [justMounted, setJustMounted] = useState(true);
 //   const [searchQuery, setSearchQuery] = useState('');
 //   const [data, setData] = useState([]);
     // [
@@ -42,6 +45,15 @@ export default function AddComment() {
 //     setSearchQuery(item.name);
 //     setData([]);
 //   };
+  useEffect(() => {
+    setJustMounted(false);
+  },[]);
+
+  useEffect(() => {
+  if (!loading && !justMounted) {
+    router.back();
+  }
+  }, [loading, router]);
 
   const onPostPress = () => {
     if(text.trim() === ''){
@@ -58,21 +70,33 @@ export default function AddComment() {
     // else{
     //   dispatch(fetchCommentComment( user_id, parentId, 0));
     // }
-    router.back();
   };
+  const retryAction = () => {
+    // Implement your retry logic here
+    // For example, you might clear the error and attempt to fetch data again
+    setJustMounted(false);
+    dispatch(clearCreateComment());
+    
+    // Fetch data or perform other actions here
+ };
+  if (error) {
+    return (
+      <ErrorView error={error} retryAction={retryAction} />
+   );
+  }
   return (
     <SafeAreaView style={styles.safeAreaContainer}>
       <View style={styles.container}>
       <View style={styles.buttonContainer}>
         <Link href="../" style={{fontSize: 18}}>cancel</Link>
           <Pressable onPress={onPostPress} style={styles.button}>
-            <Text style={styles.buttonText}>post</Text>
+            <Text style={styles.buttonText}>comment</Text>
           </Pressable>
         </View>
         <View>
           { <>
           <TextInput 
-            placeholder="enter title" 
+            placeholder="enter comment" 
             multiline
             //numberOfLines={2}
             style={styles.title}
@@ -81,6 +105,7 @@ export default function AddComment() {
             selectionColor="black"
             />
           </>}
+          {loading && <ActivityIndicator/>}
         </View>
       </View>
       </SafeAreaView>
@@ -143,7 +168,6 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 22,
-    fontWeight: 'bold',
     color: '#333',
     marginBottom: 10,
     paddingVertical: 10,

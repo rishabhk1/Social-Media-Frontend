@@ -16,7 +16,7 @@ export const fetchName = () =>  {
               } else {
                 // Handle non-200 status codes here (e.g., dispatch error action)
                 //console.error("Unexpected status code:", response.status);
-                throw new Error(response1?.data?.message || "Error");
+                throw new Error(response1?.data || "Error");
             }
       } catch (error) {
         dispatch(setError(error.message));

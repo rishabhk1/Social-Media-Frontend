@@ -27,8 +27,10 @@ export interface createCommentState {
       setError(state, action) {
         state.error = action.payload;
       },
-      clearSearch(state){
+      clearCreateComment(state){
         state.error=null;
+        state.loading=false;
+        
       },
       setLoading(state, action) {
         state.loading = action.payload;
@@ -38,7 +40,7 @@ export interface createCommentState {
   });
   
   // Export the actions
-export const {  setError, clearSearch, setLoading} = createCommentSlice.actions;
+export const {  setError, clearCreateComment, setLoading} = createCommentSlice.actions;
 
 
 export default createCommentSlice.reducer;

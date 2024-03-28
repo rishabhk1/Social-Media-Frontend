@@ -7,6 +7,10 @@ import { RootState, AppDispatch } from '@/state/store';
 import {appealFromCommunity, joinCommunity,unjoinCommunity,  setCommunity, setPosts, setAppealed, setLoading, setError, clearCommunity, upvoteFromCommunity, downvoteFromCommunity, undoUpvoteFromCommunity, undoDownvoteFromCommunity, deleteFromCommunity, HideFromCommunity, hideFromCommunity, showFromCommunity } from "@/state/reducers/communitySlice";
 import { DOWNVOTE, UNDO_DOWNVOTE, UNDO_UPVOTE, UPVOTE, GET_USER, GET_PROFILE_POSTS, GET_PROFILE_COMMENTS, GET_COMMUNITY, GET_COMMUNITY_POSTS, GET_COMMUNITY_APPEALED, JOIN_COMMUNITY, UNJOIN_COMMUNITY, APPEAL, SHOW, HIDE, DELETE} from "@/constants/Urls";
 
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 export const fetchPostComment = (communityId?: string, userId?: string ,pageNoPost?: number, pageNoAppealed?: number) =>  {
     console.log('postid', userId, communityId);
     return async (dispatch) => {
@@ -50,7 +54,7 @@ export const fetchPostComment = (communityId?: string, userId?: string ,pageNoPo
         } else {
           // Handle non-200 status codes here (e.g., dispatch error action)
           //console.error("Unexpected status code:", response.status);
-          throw new Error(response1?.data?.message || "Error");
+          throw new Error(response1?.data || "Error");
         }
         if (response2.status === 200) {
             console.log(response2.data);
@@ -59,7 +63,7 @@ export const fetchPostComment = (communityId?: string, userId?: string ,pageNoPo
           } else {
             // Handle non-200 status codes here (e.g., dispatch error action)
             //console.error("Unexpected status code:", response.status);
-            throw new Error(response2?.data?.message || "Error");
+            throw new Error(response2?.data || "Error");
           }
           if (response3.status === 200) {
             console.log(response3);
@@ -75,7 +79,7 @@ export const fetchPostComment = (communityId?: string, userId?: string ,pageNoPo
           } else {
             // Handle non-200 status codes here (e.g., dispatch error action)
             //console.error("Unexpected status code:", response.status);
-            throw new Error(response3?.data?.message || "Error");
+            throw new Error(response3?.data || "Error");
           }
       } catch (error) {
         dispatch(setError(error.message));
@@ -111,7 +115,7 @@ export const fetchComment = (communityId?: string, userId?: string ,page?: numbe
               } else {
                 // Handle non-200 status codes here (e.g., dispatch error action)
                 //console.error("Unexpected status code:", response.status);
-                throw new Error(response1?.data?.message || "Error");
+                throw new Error(response1?.data || "Error");
             }
       } catch (error) {
         dispatch(setError(error.message));
@@ -147,7 +151,7 @@ export const fetchPost = (communityId?: string, userId?: string ,page?: number) 
               } else {
                 // Handle non-200 status codes here (e.g., dispatch error action)
                 //console.error("Unexpected status code:", response.status);
-                throw new Error(response1?.data?.message || "Error");
+                throw new Error(response1?.data || "Error");
             }
       } catch (error) {
         dispatch(setError(error.message));
@@ -178,7 +182,7 @@ export const upvoteFromCommunityAction= (userId?: string, postId?: string) =>  {
             if(response.data) dispatch(upvoteFromCommunity({postId}));
           
         } else {
-          throw new Error(response?.data?.message || "Error");
+          throw new Error(response?.data || "Error");
         }
       } catch (error) {
         dispatch(setError(error.message));
@@ -205,7 +209,7 @@ export const downvoteFromCommunityAction = (userId?: string, postId?: string) =>
             if(response.data) dispatch(downvoteFromCommunity({postId}));
           
         } else {
-          throw new Error(response?.data?.message || "Error");
+          throw new Error(response?.data || "Error");
         }
       } catch (error) {
         dispatch(setError(error.message));
@@ -235,7 +239,7 @@ export const undoUpvoteFromCommunityAction = (userId?: string, postId?: string) 
             if(response.data) dispatch(undoUpvoteFromCommunity({postId}));
           
         } else {
-          throw new Error(response?.data?.message || "Error");
+          throw new Error(response?.data || "Error");
         }
       } catch (error) {
         dispatch(setError(error.message));
@@ -263,7 +267,7 @@ export const undoDownvoteFromCommunityAction = (userId?: string, postId?: string
             if(response.data) dispatch(undoDownvoteFromCommunity({postId}));
           
         } else {
-          throw new Error(response?.data?.message || "Error");
+          throw new Error(response?.data || "Error");
         }
       } catch (error) {
         dispatch(setError(error.message));
@@ -273,7 +277,7 @@ export const undoDownvoteFromCommunityAction = (userId?: string, postId?: string
 
 export const joinCommunityAction = (userId?: string, communityId?: string) =>  {
     return async (dispatch) => {
-    //   dispatch(setLoading(true));
+      dispatch(setLoading(true));
     //   console.log('started');
     const formData = new URLSearchParams();
     formData.append("args", communityId);
@@ -287,25 +291,29 @@ export const joinCommunityAction = (userId?: string, communityId?: string) =>  {
 
         if (response.status === 200) {
             console.log(response.data);
-            if(response.data) dispatch(joinCommunity({
+            if(response.data){
+              dispatch(joinCommunity({
                 id: response.data.id,
                 username: response.data.username,
                 email: response.data.email,
                 reputation: response.data.reputation,
             }));
-          
+              await sleep(1500);
+            } 
         } else {
-          throw new Error(response?.data?.message || "Error");
+          throw new Error(response?.data || "Error");
         }
       } catch (error) {
         dispatch(setError(error.message));
+      } finally {
+        dispatch(setLoading(false));
       }
     }
 };
 
 export const unjoinCommunityAction = (userId?: string, communityId?: string) =>  {
     return async (dispatch) => {
-    //   dispatch(setLoading(true));
+      dispatch(setLoading(true));
     //   console.log('started');
     const formData = new URLSearchParams();
     formData.append("args", communityId);
@@ -319,13 +327,18 @@ export const unjoinCommunityAction = (userId?: string, communityId?: string) => 
 
         if (response.status === 200 && response) {
             console.log(response.data);
-            if(response.data) dispatch(unjoinCommunity({userId}));
+            if(response.data) {
+              dispatch(unjoinCommunity({userId}));
+              await sleep(1500);
+            }
           
         } else {
-          throw new Error(response?.data?.message || "Error");
+          throw new Error(response?.data || "Error");
         }
       } catch (error) {
         dispatch(setError(error.message));
+      } finally {
+        dispatch(setLoading(false));
       }
     }
 };
@@ -333,7 +346,7 @@ export const unjoinCommunityAction = (userId?: string, communityId?: string) => 
 export const deleteFromCommunityAction = (userId?: string, postId?: string) =>  {
 
   return async (dispatch) => {
-  //   dispatch(setLoading(true));
+    dispatch(setLoading(true));
   //   console.log('started');
   const formData = new URLSearchParams();
   formData.append("args", postId);
@@ -348,12 +361,15 @@ export const deleteFromCommunityAction = (userId?: string, postId?: string) =>  
       if (response.status === 200) {
           console.log('delete',response.data);
           dispatch(deleteFromCommunity({postId}));
+          await sleep(1500);
         
       } else {
-        throw new Error(response?.data?.message || "Error");
+        throw new Error(response?.data || "Error");
       }
     } catch (error) {
       dispatch(setError(error.message));
+    } finally{
+      dispatch(setLoading(false));
     }
   }
 };
@@ -361,7 +377,7 @@ export const deleteFromCommunityAction = (userId?: string, postId?: string) =>  
 export const appealFromCommunityAction = (userId?: string, postId?: string) =>  {
 
   return async (dispatch) => {
-  //   dispatch(setLoading(true));
+    dispatch(setLoading(true));
   //   console.log('started');
   const formData = new URLSearchParams();
   formData.append("args", postId);
@@ -376,12 +392,15 @@ export const appealFromCommunityAction = (userId?: string, postId?: string) =>  
       if (response.status === 200) {
           console.log('appeal',response.data);
           dispatch(appealFromCommunity({postId}));
+          await sleep(1500);
         
       } else {
-        throw new Error(response?.data?.message || "Error");
+        throw new Error(response?.data || "Error");
       }
     } catch (error) {
       dispatch(setError(error.message));
+    } finally {
+      dispatch(setLoading(false));
     }
   }
 };
@@ -389,7 +408,7 @@ export const appealFromCommunityAction = (userId?: string, postId?: string) =>  
 export const showFromCommunityAction = (userId?: string, postId?: string) =>  {
 
   return async (dispatch) => {
-  //   dispatch(setLoading(true));
+    dispatch(setLoading(true));
   //   console.log('started');
   const formData = new URLSearchParams();
   formData.append("args", postId);
@@ -404,12 +423,15 @@ export const showFromCommunityAction = (userId?: string, postId?: string) =>  {
       if (response.status === 200) {
           console.log('show',response.data);
           dispatch(showFromCommunity({postId}));
+          await sleep(1500);
         
       } else {
-        throw new Error(response?.data?.message || "Error");
+        throw new Error(response?.data || "Error");
       }
     } catch (error) {
       dispatch(setError(error.message));
+    } finally {
+      dispatch(setLoading(false));
     }
   }
 };
@@ -417,7 +439,7 @@ export const showFromCommunityAction = (userId?: string, postId?: string) =>  {
 export const hideFromCommunityAction = (userId?: string, postId?: string) =>  {
 
   return async (dispatch) => {
-  //   dispatch(setLoading(true));
+    dispatch(setLoading(true));
   //   console.log('started');
   const formData = new URLSearchParams();
   formData.append("args", postId);
@@ -432,12 +454,15 @@ export const hideFromCommunityAction = (userId?: string, postId?: string) =>  {
       if (response.status === 200) {
           console.log('hide',response.data);
           dispatch(hideFromCommunity({postId}));
+          await sleep(1500);
         
       } else {
-        throw new Error(response?.data?.message || "Error");
+        throw new Error(response?.data || "Error");
       }
     } catch (error) {
       dispatch(setError(error.message));
+    } finally {
+      dispatch(setLoading(false));
     }
   }
 };

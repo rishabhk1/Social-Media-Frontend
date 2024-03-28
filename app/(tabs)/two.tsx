@@ -8,6 +8,8 @@ import { createPostAction } from '@/actions/createPost';
 import { user_id } from '@/constants/Urls';
 import { fetchPosts } from '@/actions/feed';
 import { clearFeed } from '@/state/reducers/feedSlice';
+import ErrorView from '@/components/ErrorView';
+import { clearError } from '@/state/reducers/createPostSlice';
 
 // const DATA = [
 //   { id: '1', name: 'Apple' },
@@ -19,7 +21,7 @@ import { clearFeed } from '@/state/reducers/feedSlice';
 
 export default function TabTwoScreen() {
   const dispatch = useDispatch<AppDispatch>();
-  const DATA = useSelector((state: RootState) => state.search.communityName);
+  const DATA = useSelector((state: RootState) => state.createPost.communityName);
   const error = useSelector((state: RootState) => state.createPost.error);
   const loading = useSelector((state: RootState) => state.createPost.loading);
   const router = useRouter();
@@ -28,6 +30,7 @@ export default function TabTwoScreen() {
   const [description, setDescription] = useState("");  
   const [searchQuery, setSearchQuery] = useState("");
   const [data, setData] = useState([]);
+  const [justMounted, setJustMounted] = useState(true);
     // [
     // { id: '1', name: 'Apple' },
     // { id: '2', name: 'Banana' },
@@ -42,10 +45,18 @@ export default function TabTwoScreen() {
     //setNextPage(nextPage+1);
   };
 
+
   useEffect(() => {
-    dispatch(fetchName());
+      console.log('mouny');
+      dispatch(fetchName());
+      setJustMounted(false);
   },[]);
 
+  useEffect(() => {
+    if (!loading && !justMounted) {
+      router.back();
+    }
+  }, [loading, router]);
 
   const handleSearch = (input:string) => {
     const filteredData = DATA.filter(item =>
@@ -87,12 +98,26 @@ export default function TabTwoScreen() {
     //   router.back();
     // }
     //dispatch(clearFeed());
-    if(!loading){
-      //dispatch(fetchPosts(user_id,0));
-      router.back();
-    }
+    // if(!loading){
+    //   //dispatch(fetchPosts(user_id,0));
+    //   router.back();
+    // }
     
   };
+  const retryAction = () => {
+    // Implement your retry logic here
+    // For example, you might clear the error and attempt to fetch data again
+    setJustMounted(false);
+    dispatch(clearError());
+    dispatch(fetchName());
+    
+    // Fetch data or perform other actions here
+ };
+  if (error) {
+    return (
+      <ErrorView error={error} retryAction={retryAction} />
+   );
+  }
   return (
     <SafeAreaView style={styles.safeAreaContainer}>
       <View style={styles.container}>
@@ -105,7 +130,7 @@ export default function TabTwoScreen() {
         <View>
           <TextInput
             style={styles.input}
-            placeholder="Search..."
+            placeholder="select community"
             value={searchQuery}
             onChangeText={handleSearch}
             selectionColor="black"

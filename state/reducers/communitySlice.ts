@@ -142,6 +142,8 @@ export interface CommunityState {
         state.appealed=[];
         state.members=[];
         state.moderators=[];
+        state.loading=false;
+        state.error=null;
       },
       upvoteFromCommunity(state, action){
         // console.log(action.payload.postId);

@@ -4,11 +4,14 @@ import tweets from '@/assets/data/tweets';
 import Post from '@/components/Post';
 import Comment from '@/components/Comment';
 import { useDispatch, useSelector } from 'react-redux';
-import { useState, useEffect } from 'react';
+import { useState, useEffect , useCallback} from 'react';
 import { RootState, AppDispatch } from '@/state/store';
 import {fetchPost, fetchComment, fetchPostComment, upvoteFromProfileAction, downvoteFromProfileAction, undoDownvoteFromProfileAction, undoUpvoteFromProfileAction, deleteFromProfileAction, appealFromProfileAction} from '@/actions/profile'
 import { clearProfile } from '@/state/reducers/profileSlice';
 import { user_id } from '@/constants/Urls';
+import MinidenticonImg from '@/components/IdentityIcon';
+import ErrorView from '@/components/ErrorView';
+import { useFocusEffect } from '@react-navigation/native';
 
 const initialPagePost = 0;
 const intialPageComment=0;
@@ -49,12 +52,21 @@ export default function Profile({id=user_id}) {
         //setNextPage(nextPage+1);
       };
     
-      useEffect(() => {
-        dispatch(clearProfile());
-        if(loading) return;
-        dispatch(fetchPostComment(id, user_id, initialPagePost, intialPageComment));
+    //   useEffect(() => {
+    //     dispatch(clearProfile());
+    //     if(loading) return;
+    //     dispatch(fetchPostComment(id, user_id, initialPagePost, intialPageComment));
+    //     //setNextPage(nextPage+1);
+    //   },[]);
+
+      useFocusEffect(
+        useCallback(() => {
+            dispatch(clearProfile());
+            if(loading) return;
+            dispatch(fetchPostComment(id, user_id, initialPagePost, intialPageComment));
         //setNextPage(nextPage+1);
-      },[]);
+        }, [id])
+      );
     const renderItem = ({item, section}) =>{
         if(selectedSection==='comments' && section.title==='comments'){
             return <Comment 
@@ -80,20 +92,27 @@ export default function Profile({id=user_id}) {
                     />;
         }
     };
-    const renderSectionHeader = ({section}) => (
-        <TouchableOpacity  key={section.id} onPress={() => setSelectedSection(section.title)}>
-            <View style={{backgroundColor: selectedSection === section.title?'lightgray':'white'}}>
-                <Text style={{padding: 10, fontWeight: selectedSection === section.title? 'bold': 'normal'}}>{section.title}</Text>
-            </View>  
-        </TouchableOpacity>
-    );
+    // const renderSectionHeader = ({section}) => (
+    //     <TouchableOpacity  key={section.id} onPress={() => setSelectedSection(section.title)}>
+    //         <View style={{backgroundColor: selectedSection === section.title?'lightgray':'white'}}>
+    //             <Text style={{padding: 10, fontWeight: selectedSection === section.title? 'bold': 'normal'}}>{section.title}</Text>
+    //         </View>  
+    //     </TouchableOpacity>
+    // );
+    const retryAction = () => {
+        onRefresh();
+      };
+      if (error) {
+        return (
+          <ErrorView error={error} retryAction={retryAction} />
+       );
+      }
     return(
         <SafeAreaView style={styles.container}>
             <View style={{flexDirection:'row'}}>
-                <Image
-                    src={img}
-                    style={styles.profileImage}
-                />
+                <View style={{margin:20}}>
+                    <MinidenticonImg username={id} saturation={50} lightness={50} height={100} width={100}/>
+                </View>
                 <View style={styles.userInfo}>
                     <Text style={styles.userText}>{targetUserName}</Text>
                     <Text style={styles.userText}>reputation {targetUserReputation}</Text>

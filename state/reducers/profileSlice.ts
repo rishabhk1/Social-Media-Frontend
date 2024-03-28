@@ -110,6 +110,8 @@ export interface ProfileState {
         state.nextPagePost=0;
         state.comments=[];
         state.targetUserReputation=0;
+        state.error=null;
+        state.loading=false;
       },
       upvoteFromProfile(state, action){
         // console.log(action.payload.postId);

@@ -68,7 +68,7 @@ export interface PostCommentState {
         console.log('inside slice');
         console.log(action.payload.posts);
         if(!action.payload.posts.hidden){
-          state.posts = [...state.posts, action.payload.posts];
+          state.posts = [action.payload.posts];
         }
         //state.nextPage = action.payload.hasMorePages ? state.nextPage + 1 : -2;
       },
@@ -89,6 +89,8 @@ export interface PostCommentState {
       clearPostComment(state){
         state.posts=[];
         state.nextPage=0;
+        state.loading=false;
+        state.error=null;
       },
       upvoteFromPC(state, action){
         // console.log(action.payload.postId);

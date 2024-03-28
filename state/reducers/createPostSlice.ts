@@ -35,8 +35,9 @@ export interface createPostState {
       setError(state, action) {
         state.error = action.payload;
       },
-      clearSearch(state){
+      clearError(state){
         state.error=null;
+        state.loading=false;
       },
       setLoading(state, action) {
         state.loading = action.payload;
@@ -46,7 +47,7 @@ export interface createPostState {
   });
   
   // Export the actions
-export const { setName, setError, clearSearch, setLoading} = createPostSlice.actions;
+export const { setName, setError, clearError, setLoading} = createPostSlice.actions;
 
 
 export default createPostSlice.reducer;

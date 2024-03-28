@@ -7,6 +7,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useState, useEffect } from 'react';
 import { RootState, AppDispatch } from '@/state/store';
 import { Link } from 'expo-router';
+import ErrorView from '@/components/ErrorView';
+import { clearSearch } from '@/state/reducers/searchSlice';
 
 // const DATA = [
 //     { id: '1', name: 'Apple' },
@@ -19,6 +21,7 @@ import { Link } from 'expo-router';
 export default function Search() {
   const dispatch = useDispatch<AppDispatch>();
   const DATA = useSelector((state: RootState) => state.search.communityName);
+  const error = useSelector((state: RootState) => state.search.error);
     const [searchQuery, setSearchQuery] = useState('');
     const [data, setData] = useState([]);
   
@@ -46,6 +49,15 @@ const handleItemPress = (item) => {
     setSearchQuery(item.name);
     setData([]);
 };
+const retryAction = () => {
+  dispatch(clearSearch());
+  dispatch(fetchName());
+};
+if (error) {
+  return (
+    <ErrorView error={error} retryAction={retryAction} />
+ );
+}
   return (
     <View style={styles.page}>
           <TextInput

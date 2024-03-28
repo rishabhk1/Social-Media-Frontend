@@ -2,7 +2,11 @@ import axios from "../axios";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { Dispatch } from "@reduxjs/toolkit";
 import { appealFromFeed, setPosts, setLoading, setError, PostsState, upvoteFromFeed, undoDownvoteFromFeed, undoUpvoteFromFeed, downvoteFromFeed, deleteFromFeed } from "@/state/reducers/feedSlice";
-import { APPEAL, DELETE, DOWNVOTE, FEED_PATH, UNDO_DOWNVOTE, UNDO_UPVOTE, UPVOTE } from "@/constants/Urls";
+import { APPEAL, DELETE, DOWNVOTE, FEED_PATH, UNDO_DOWNVOTE, UNDO_UPVOTE, UPVOTE, user_id } from "@/constants/Urls";
+
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 export const fetchPosts = (userId?: string, page?: number) =>  {
     return async (dispatch) => {
@@ -11,7 +15,7 @@ export const fetchPosts = (userId?: string, page?: number) =>  {
       try {
         const response = await axios.get(FEED_PATH,{
             params: {
-                id: userId,
+                id: user_id,
                 pageNo: page
               }
         });
@@ -23,7 +27,7 @@ export const fetchPosts = (userId?: string, page?: number) =>  {
         } else {
           // Handle non-200 status codes here (e.g., dispatch error action)
           //console.error("Unexpected status code:", response.status);
-          throw new Error(response?.data?.message || "Error");
+          throw new Error(response?.data || "Error");
         }
       } catch (error) {
         dispatch(setError(error.message));
@@ -54,7 +58,7 @@ export const upvoteFromFeedAction = (userId?: string, postId?: string) =>  {
             if(response.data) dispatch(upvoteFromFeed({postId}));
           
         } else {
-          throw new Error(response?.data?.message || "Error");
+          throw new Error(response?.data || "Error");
         }
       } catch (error) {
         dispatch(setError(error.message));
@@ -82,7 +86,7 @@ export const downvoteFromFeedAction = (userId?: string, postId?: string) =>  {
             if(response.data) dispatch(downvoteFromFeed({postId}));
           
         } else {
-          throw new Error(response?.data?.message || "Error");
+          throw new Error(response?.data || "Error");
         }
       } catch (error) {
         dispatch(setError(error.message));
@@ -112,7 +116,7 @@ export const undoUpvoteFromFeedAction = (userId?: string, postId?: string) =>  {
             if(response.data) dispatch(undoUpvoteFromFeed({postId}));
           
         } else {
-          throw new Error(response?.data?.message || "Error");
+          throw new Error(response?.data || "Error");
         }
       } catch (error) {
         dispatch(setError(error.message));
@@ -140,7 +144,7 @@ export const undoDownvoteFromFeedAction = (userId?: string, postId?: string) => 
             if(response.data) dispatch(undoDownvoteFromFeed({postId}));
           
         } else {
-          throw new Error(response?.data?.message || "Error");
+          throw new Error(response?.data || "Error");
         }
       } catch (error) {
         dispatch(setError(error.message));
@@ -151,7 +155,7 @@ export const undoDownvoteFromFeedAction = (userId?: string, postId?: string) => 
 export const deleteFromFeedAction = (userId?: string, postId?: string) =>  {
 
   return async (dispatch) => {
-  //   dispatch(setLoading(true));
+    dispatch(setLoading(true));
   //   console.log('started');
   const formData = new URLSearchParams();
   formData.append("args", postId);
@@ -166,12 +170,15 @@ export const deleteFromFeedAction = (userId?: string, postId?: string) =>  {
       if (response.status === 200) {
           console.log('delete',response.data);
           dispatch(deleteFromFeed({postId}));
+          await sleep(1500);
         
       } else {
-        throw new Error(response?.data?.message || "Error");
+        throw new Error(response?.data || "Error");
       }
     } catch (error) {
       dispatch(setError(error.message));
+    } finally {
+      dispatch(setLoading(true));
     }
   }
 };
@@ -207,7 +214,7 @@ export const deleteFromFeedAction = (userId?: string, postId?: string) =>  {
 export const appealFromFeedAction = (userId?: string, postId?: string) =>  {
 
   return async (dispatch) => {
-  //   dispatch(setLoading(true));
+    dispatch(setLoading(true));
   //   console.log('started');
   const formData = new URLSearchParams();
   formData.append("args", postId);
@@ -222,12 +229,15 @@ export const appealFromFeedAction = (userId?: string, postId?: string) =>  {
       if (response.status === 200) {
           console.log('appeal',response.data);
           dispatch(appealFromFeed({postId}));
+          await sleep(1500);
         
       } else {
-        throw new Error(response?.data?.message || "Error");
+        throw new Error(response?.data || "Error");
       }
     } catch (error) {
       dispatch(setError(error.message));
+    } finally {
+      dispatch(setLoading(false));
     }
   }
 };

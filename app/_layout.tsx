@@ -6,7 +6,7 @@ import { Provider } from "react-redux";
 import {store} from ".././state/store"
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
-
+import {KeyboardAvoidingView, Platform} from 'react-native'
 import { useColorScheme } from '@/components/useColorScheme';
 
 export {
@@ -56,7 +56,11 @@ function RootLayoutNav() {
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="post/[id]" options={{ title: "Post" }} />
+          <Stack.Screen name="profile/[id]" options={{ title: "Profile" }} />
+          <Stack.Screen name="comment/[id]" options={{ title: "Comment" }} />
+          <Stack.Screen name="community/[id]" options={{ title: "Community" }} />
         <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
         <Stack.Screen name="addcomment/[parentId]" options={{ headerShown: false}}/>
         <Stack.Screen name="createCommunity" options={{ headerShown: false}}/>

@@ -4,6 +4,10 @@ import { Dispatch } from "@reduxjs/toolkit";
 import {appealFromPC,  setPost, setComments, setLoading, setError, clearPostComment, upvoteFromPC, downvoteFromPC, undoUpvoteFromPC, undoDownvoteFromPC, deleteFromPC } from "@/state/reducers/postCommentSlice";
 import { DOWNVOTE, COMMENT_FEED, UNDO_DOWNVOTE, UNDO_UPVOTE, UPVOTE, GET_POST, APPEAL, DELETE } from "@/constants/Urls";
 
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 export const fetchPostComment = (userId?: string, postId?: string ,page?: number) =>  {
     console.log('postid', userId, postId, page);
     return async (dispatch) => {
@@ -39,7 +43,7 @@ export const fetchPostComment = (userId?: string, postId?: string ,page?: number
         } else {
           // Handle non-200 status codes here (e.g., dispatch error action)
           //console.error("Unexpected status code:", response.status);
-          throw new Error(response1?.data?.message || "Error");
+          throw new Error(response1?.data || "Error");
         }
         if (response2.status === 200) {
             console.log(response2.data);
@@ -48,7 +52,7 @@ export const fetchPostComment = (userId?: string, postId?: string ,page?: number
           } else {
             // Handle non-200 status codes here (e.g., dispatch error action)
             //console.error("Unexpected status code:", response.status);
-            throw new Error(response2?.data?.message || "Error");
+            throw new Error(response2?.data || "Error");
           }
       } catch (error) {
         dispatch(setError(error.message));
@@ -84,7 +88,7 @@ export const fetchComment = (userId?: string, postId?: string ,page?: number) =>
               } else {
                 // Handle non-200 status codes here (e.g., dispatch error action)
                 //console.error("Unexpected status code:", response.status);
-                throw new Error(response1?.data?.message || "Error");
+                throw new Error(response1?.data || "Error");
             }
       } catch (error) {
         dispatch(setError(error.message));
@@ -115,7 +119,7 @@ export const upvoteFromPCAction= (userId?: string, postId?: string) =>  {
             if(response.data) dispatch(upvoteFromPC({postId}));
           
         } else {
-          throw new Error(response?.data?.message || "Error");
+          throw new Error(response?.data || "Error");
         }
       } catch (error) {
         dispatch(setError(error.message));
@@ -143,7 +147,7 @@ export const downvoteFromPCAction = (userId?: string, postId?: string) =>  {
             if(response.data) dispatch(downvoteFromPC({postId}));
           
         } else {
-          throw new Error(response?.data?.message || "Error");
+          throw new Error(response?.data || "Error");
         }
       } catch (error) {
         dispatch(setError(error.message));
@@ -173,7 +177,7 @@ export const undoUpvoteFromPCAction = (userId?: string, postId?: string) =>  {
             if(response.data) dispatch(undoUpvoteFromPC({postId}));
           
         } else {
-          throw new Error(response?.data?.message || "Error");
+          throw new Error(response?.data || "Error");
         }
       } catch (error) {
         dispatch(setError(error.message));
@@ -201,7 +205,7 @@ export const undoDownvoteFromPCAction = (userId?: string, postId?: string) =>  {
             if(response.data) dispatch(undoDownvoteFromPC({postId}));
           
         } else {
-          throw new Error(response?.data?.message || "Error");
+          throw new Error(response?.data || "Error");
         }
       } catch (error) {
         dispatch(setError(error.message));
@@ -212,7 +216,7 @@ export const undoDownvoteFromPCAction = (userId?: string, postId?: string) =>  {
 export const deleteFromPCAction = (userId?: string, postId?: string) =>  {
 
   return async (dispatch) => {
-  //   dispatch(setLoading(true));
+    dispatch(setLoading(true));
   //   console.log('started');
   const formData = new URLSearchParams();
   formData.append("args", postId);
@@ -227,12 +231,15 @@ export const deleteFromPCAction = (userId?: string, postId?: string) =>  {
       if (response.status === 200) {
           console.log('delete',response.data);
           dispatch(deleteFromPC({postId}));
+          await sleep(1500);
         
       } else {
-        throw new Error(response?.data?.message || "Error");
+        throw new Error(response?.data || "Error");
       }
     } catch (error) {
       dispatch(setError(error.message));
+    } finally {
+      dispatch(setLoading(false));
     }
   }
 };
@@ -240,7 +247,7 @@ export const deleteFromPCAction = (userId?: string, postId?: string) =>  {
 export const appealFromPCAction = (userId?: string, postId?: string) =>  {
 
   return async (dispatch) => {
-  //   dispatch(setLoading(true));
+    dispatch(setLoading(true));
   //   console.log('started');
   const formData = new URLSearchParams();
   formData.append("args", postId);
@@ -255,12 +262,15 @@ export const appealFromPCAction = (userId?: string, postId?: string) =>  {
       if (response.status === 200) {
           console.log('appeal',response.data);
           dispatch(appealFromPC({postId}));
+          await sleep(1500);
         
       } else {
-        throw new Error(response?.data?.message || "Error");
+        throw new Error(response?.data || "Error");
       }
     } catch (error) {
       dispatch(setError(error.message));
+    } finally {
+      dispatch(setLoading(false));
     }
   }
 };

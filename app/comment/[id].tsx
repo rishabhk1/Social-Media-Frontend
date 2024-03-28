@@ -3,13 +3,15 @@ import tweets from '../../assets/data/tweets';
 import Comment from '@/components/Comment';
 import comments from '../../assets/data/comments';
 import { useDispatch, useSelector } from 'react-redux';
-import { useState, useEffect } from 'react';
+import { useState, useEffect , useCallback} from 'react';
 import { RootState, AppDispatch } from '@/state/store';
 import { user_id } from '@/constants/Urls';
 import {Text, View, FlatList, StyleSheet, ActivityIndicator, Pressable, TextInput} from 'react-native';
 import {appealFromCommentAction, fetchPostComment, upvoteFromCommentAction, undoUpvoteFromCommentAction, undoDownvoteFromCommentAction, downvoteFromCommentAction, fetchComment,deleteFromCommentAction } from '@/actions/comment'
 import { useGlobalSearchParams, useLocalSearchParams, Link  } from 'expo-router';
 import { clearComments } from '@/state/reducers/commentSlice';
+import { useFocusEffect } from '@react-navigation/native';
+import ErrorView from '@/components/ErrorView';
 
 const initialPage=0;
 
@@ -38,12 +40,39 @@ export default function CommentScreen(){
         //setNextPage(nextPage+1);
       };
     
-      useEffect(() => {
+      // useEffect(() => {
+      //   dispatch(clearComments());
+      //   if(loading) return;
+      //   dispatch(fetchPostComment(user_id, id, initialPage));
+      //   //setNextPage(nextPage+1);
+      // },[]);
+
+      // useEffect(() => {
+      //   dispatch(clearComments());
+      //   if(loading) return;
+      //   dispatch(fetchPostComment(user_id, id, initialPage));
+      //   //setNextPage(nextPage+1);
+      // },[]);
+      useFocusEffect(
+        useCallback(() => {
         dispatch(clearComments());
         if(loading) return;
         dispatch(fetchPostComment(user_id, id, initialPage));
         //setNextPage(nextPage+1);
-      },[]);
+        }, [id])
+      );
+      const retryAction = () => {
+        // Implement your retry logic here
+        // For example, you might clear the error and attempt to fetch data again
+        onRefresh();
+        
+        // Fetch data or perform other actions here
+     };
+      if (error) {
+        return (
+          <ErrorView error={error} retryAction={retryAction} />
+       );
+      }
     return (
         <View style={styles.page}>
             {/* <Comment comment={commentHead}/>

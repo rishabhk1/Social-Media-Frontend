@@ -7,11 +7,13 @@ import Post from '@/components/Post';
 import UserList from '@/components/UserList';
 import Comment from '@/components/Comment';
 import { useDispatch, useSelector } from 'react-redux';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { RootState, AppDispatch } from '@/state/store';
 import {fetchPostComment, appealFromCommunityAction, fetchPost, fetchComment, upvoteFromCommunityAction, undoUpvoteFromCommunityAction,deleteFromCommunityAction, undoDownvoteFromCommunityAction, downvoteFromCommunityAction, joinCommunityAction, unjoinCommunityAction } from '@/actions/community'
 import { clearCommunity } from '@/state/reducers/communitySlice';
 import { user_id } from '@/constants/Urls';
+import MinidenticonImg from '@/components/IdentityIcon';
+import ErrorView from '@/components/ErrorView';
 // import {
 //     toggleMembers, toggleMod
 // } from "../../state/reducers/feedSlice";
@@ -80,12 +82,20 @@ export default function CommunityHome() {
     //setNextPage(nextPage+1);
     };
 
-    useEffect(() => {
+    // useEffect(() => {
+    //     dispatch(clearCommunity());
+    // if(loading) return;
+    // dispatch(fetchPostComment(id, user_id, initialPagePost, intialPageApplead));
+    // //setNextPage(nextPage+1);
+    // },[]);
+    useFocusEffect(
+        useCallback(() => {
         dispatch(clearCommunity());
-    if(loading) return;
-    dispatch(fetchPostComment(id, user_id, initialPagePost, intialPageApplead));
-    //setNextPage(nextPage+1);
-    },[]);
+        if(loading) return;
+        dispatch(fetchPostComment(id, user_id, initialPagePost, intialPageApplead));
+        //setNextPage(nextPage+1);
+        }, [id])
+      );
     // const changeMods = () => {
     //     setModModalVisible(!isModModalVisible);
     //     //dispatch(toggleMod());
@@ -146,13 +156,28 @@ export default function CommunityHome() {
         </TouchableOpacity>
     );
     //console.log(isMemberModalVisible);
+    const retryAction = () => {
+        // Implement your retry logic here
+        // For example, you might clear the error and attempt to fetch data again
+        onRefresh();
+        
+        // Fetch data or perform other actions here
+     };
+      if (error) {
+        return (
+          <ErrorView error={error} retryAction={retryAction} />
+       );
+      }
     return(
         <SafeAreaView style={styles.container}>
             <View style={{flexDirection:'row'}}>
-                <Image
+                {/* <Image
                     src={img}
                     style={styles.profileImage}
-                />
+                /> */}
+                <View style={{margin:20}}>
+                    <MinidenticonImg username={id} saturation={50} lightness={50} height={100} width={100}/>
+                </View>
                 <View>
                 <View style={styles.userInfo}>
                     <Text style={styles.userText}>{name}</Text>
@@ -214,6 +239,9 @@ export default function CommunityHome() {
                         <Text style={styles.buttonText}>{joined?'unjoin':'join'}</Text>
                     </Pressable>
                 </View>
+            </View>
+            <View>
+                    <Text style={{marginLeft:20, fontSize:18}}>{description}</Text>
             </View>
             <View style={{flex: 1}}>
                 <View style={{flexDirection: 'row', justifyContent: 'space-around', borderBottomWidth: 1, borderBottomColor: 'black'}}>

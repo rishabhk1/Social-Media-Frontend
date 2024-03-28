@@ -2,16 +2,17 @@ import React from 'react';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Entypo } from '@expo/vector-icons';
 import { Link, Tabs } from 'expo-router';
-import { Pressable } from 'react-native';
+import { KeyboardAvoidingView, Pressable } from 'react-native';
 
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { useClientOnlyValue } from '@/components/useClientOnlyValue';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
-import { View } from 'react-native';
+import { View, Platform , Dimensions} from 'react-native';
 import { Button, Menu, Divider, PaperProvider } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 
+const { width, height } = Dimensions.get("window")
 
 // You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
 function TabBarIcon(props: {
@@ -37,18 +38,36 @@ export default function TabLayout() {
   
   return (
     <PaperProvider>
+      {/* <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}
+      > */}
+                        {/* <View style={{
+            width,
+            height,
+        }}> */}
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        // tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
         // Disable the static render of the header on web
         // to prevent a hydration error in React Navigation v6.
         headerShown: useClientOnlyValue(false, true),
+        tabBarShowLabel: false,
+        tabBarActiveTintColor: 'white',
+        tabBarInactiveTintColor: 'gray',
+        tabBarHideOnKeyboard: true,
       }}>
       <Tabs.Screen
         name="index"
         options={{
           title: "Home",
-          tabBarIcon: ({ color }) => <Entypo name="home" size={28} color="white" />,
+          tabBarIcon: ({ color}) => (
+            <Entypo
+              name="home"
+              size={28}
+              color={color}
+            />
+          ),
           headerRight: () => (
             // <Link href="/modal" asChild>
             //   <Pressable>
@@ -110,17 +129,26 @@ export default function TabLayout() {
         options={{
           headerShown: false,
           title: 'Create',
-          tabBarIcon: ({ color }) => <Entypo name="plus" size={28} color="white" />,
+          tabBarIcon: ({ color }) => <Entypo name="plus" size={28} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="search"
+        options={{
+          title: 'Search Community',
+          tabBarIcon: ({ color }) => <MaterialIcons name="search" size={28} color={color} />,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
           title: 'Profile',
-          tabBarIcon: ({ color }) => <Entypo name="user" size={28} color="white" />,
+          tabBarIcon: ({ color }) => <Entypo name="user" size={28} color={color} />,
         }}
       />
     </Tabs>
+    {/* </View> */}
+    {/* </KeyboardAvoidingView> */}
     </PaperProvider>
   );
 }
