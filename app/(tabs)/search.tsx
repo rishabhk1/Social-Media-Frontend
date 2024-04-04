@@ -4,11 +4,12 @@ import tweets from '@/assets/data/tweets';
 import Post from '@/components/Post';
 import { fetchName } from '@/actions/search';
 import { useDispatch, useSelector } from 'react-redux';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { RootState, AppDispatch } from '@/state/store';
 import { Link } from 'expo-router';
 import ErrorView from '@/components/ErrorView';
 import { clearSearch } from '@/state/reducers/searchSlice';
+import { useFocusEffect } from '@react-navigation/native';
 
 // const DATA = [
 //     { id: '1', name: 'Apple' },
@@ -32,9 +33,15 @@ export default function Search() {
       //setNextPage(nextPage+1);
     };
   
-    useEffect(() => {
-      dispatch(fetchName());
-    },[]);
+    // useEffect(() => {
+    //   dispatch(fetchName());
+    // },[]);
+    useFocusEffect(
+      useCallback(() => {
+        dispatch(fetchName());
+      //setNextPage(nextPage+1);
+      }, [])
+    );
 
 const handleSearch = (input:string) => {
     const filteredData = DATA.filter(item =>

@@ -7,7 +7,8 @@ import communityReducer from "./reducers/communitySlice";
 import searchReducer from "./reducers/searchSlice"
 import createPostReducer from "./reducers/createPostSlice" 
 import createCommentReducer from "./reducers/createCommentSlice" 
-import createCommunityReducer from "./reducers/createCommunitySlice" 
+import createCommunityReducer from "./reducers/createCommunitySlice"
+import loginReducer from "./reducers/loginSlice" 
 
 export const store = configureStore({
   reducer: {
@@ -19,7 +20,8 @@ export const store = configureStore({
     search: searchReducer,
     createPost: createPostReducer,
     createComment: createCommentReducer,
-    createCommunity: createCommunityReducer
+    createCommunity: createCommunityReducer,
+    login: loginReducer
   },
 });
 

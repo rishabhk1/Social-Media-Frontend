@@ -11,6 +11,10 @@ import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { View, Platform , Dimensions} from 'react-native';
 import { Button, Menu, Divider, PaperProvider } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { setAuth } from '@/state/reducers/loginSlice';
+import { RootState, AppDispatch } from '@/state/store';
+import { useDispatch, useSelector } from 'react-redux';
 
 const { width, height } = Dimensions.get("window")
 
@@ -23,6 +27,7 @@ function TabBarIcon(props: {
 }
 
 export default function TabLayout() {
+  const dispatch = useDispatch<AppDispatch>();
   const colorScheme = useColorScheme();
   const [visible, setVisible] = React.useState(false);
 
@@ -35,6 +40,24 @@ export default function TabLayout() {
     closeMenu(); // Close the menu after navigation (optional)
     navigation.navigate(routeName);
   };
+
+  const resetAndNavigate = (routeName:string) => {
+    navigation.reset({
+      index: 0,
+      routes: [{ name: routeName }],
+    });
+ };
+
+ const clearAllData = async () => {
+  try {
+    console.log('clearing');
+     await AsyncStorage.clear();
+  } catch (error) {
+     // Error clearing data
+     console.error(error);
+  }
+ };
+
   
   return (
     <PaperProvider>
@@ -53,12 +76,12 @@ export default function TabLayout() {
         // to prevent a hydration error in React Navigation v6.
         headerShown: useClientOnlyValue(false, true),
         tabBarShowLabel: false,
-        tabBarActiveTintColor: 'white',
+        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
         tabBarInactiveTintColor: 'gray',
         tabBarHideOnKeyboard: true,
       }}>
       <Tabs.Screen
-        name="index"
+        name="feed"
         options={{
           title: "Home",
           tabBarIcon: ({ color}) => (
@@ -92,31 +115,23 @@ export default function TabLayout() {
                 visible={visible}
                 onDismiss={closeMenu}
                 anchorPosition='bottom'
-                anchor={<Button icon="menu" onPress={openMenu} theme={{ colors: { primary: 'white' } }}></Button>}
-                // theme={{ colors: { elevation:{level2: 'black'}} }}
+                anchor={<Button icon="menu" onPress={openMenu} theme={{ colors: { primary: Colors[colorScheme ?? 'light'].tint } }}></Button>}
+                // theme={{ colors: { elevation:{level1: Colors[colorScheme ?? 'light']}} }}
                 >
                 {/* <Link href="/createCommunity" asChild> */}
                 <Menu.Item
                   title="Create Community"
                   leadingIcon="plus-circle"
-                  onPress={() => handlePress('createCommunity')}
-                  theme={{ colors: { onSurfaceVariant: 'white', onSurface: 'white' } }}
+                  onPress={() => handlePress("createCommunity")}
+                  theme={{ colors: { onSurfaceVariant: Colors[colorScheme ?? 'light'].tint, onSurface: Colors[colorScheme ?? 'light'].tint } }}
                 />
                 {/* </Link> */}
-                <Menu.Item
-                  // onPress={() => {}}
-                  title="Settings"
-                  leadingIcon={({ color, size }) => (
-                    <Ionicons name="settings" color={color} size={size} />
-                  )}
-                  theme={{ colors: { onSurfaceVariant: 'white', onSurface: 'white' } }}
-                />
                 <Divider />
                 <Menu.Item
-                  // onPress={() => {}}
+                  onPress={() => {clearAllData();dispatch(setAuth(false));resetAndNavigate("login");}}
                   title="Logout"
                   leadingIcon="logout"
-                  theme={{ colors: { onSurfaceVariant: 'white', onSurface: 'white' } }}
+                  theme={{ colors: { onSurfaceVariant: Colors[colorScheme ?? 'light'].tint, onSurface: Colors[colorScheme ?? 'light'].tint } }}
                 />
               </Menu>
             </View>

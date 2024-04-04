@@ -1,7 +1,7 @@
 import { StyleSheet, TextInput, View, Pressable, Text, SafeAreaView, FlatList, TouchableOpacity, Platform, StatusBar, Alert, ActivityIndicator } from 'react-native';
 import {Link, useRouter} from 'expo-router';
 import { useDispatch, useSelector } from 'react-redux';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { fetchName } from '@/actions/createPost';
 import { RootState, AppDispatch } from '@/state/store';
 import { createPostAction } from '@/actions/createPost';
@@ -10,7 +10,9 @@ import { fetchPosts } from '@/actions/feed';
 import { clearFeed } from '@/state/reducers/feedSlice';
 import ErrorView from '@/components/ErrorView';
 import { clearError } from '@/state/reducers/createPostSlice';
-
+import { useFocusEffect } from '@react-navigation/native';
+import Colors from '@/constants/Colors';
+import { useColorScheme } from '@/components/useColorScheme';
 // const DATA = [
 //   { id: '1', name: 'Apple' },
 //   { id: '2', name: 'Banana' },
@@ -20,6 +22,7 @@ import { clearError } from '@/state/reducers/createPostSlice';
 // ];
 
 export default function TabTwoScreen() {
+  const colorScheme = useColorScheme();
   const dispatch = useDispatch<AppDispatch>();
   const DATA = useSelector((state: RootState) => state.createPost.communityName);
   const error = useSelector((state: RootState) => state.createPost.error);
@@ -46,17 +49,24 @@ export default function TabTwoScreen() {
   };
 
 
-  useEffect(() => {
-      console.log('mouny');
-      dispatch(fetchName());
-      setJustMounted(false);
-  },[]);
+  // useEffect(() => {
+  //     console.log('mouny');
+  //     dispatch(fetchName());
+  //     setJustMounted(false);
+  // },[]);
 
   useEffect(() => {
     if (!loading && !justMounted) {
       router.back();
     }
   }, [loading, router]);
+
+  useFocusEffect(
+    useCallback(() => {
+      dispatch(fetchName());
+      setJustMounted(false);
+    }, [])
+  );
 
   const handleSearch = (input:string) => {
     const filteredData = DATA.filter(item =>
@@ -176,7 +186,7 @@ export default function TabTwoScreen() {
 const styles = StyleSheet.create({
   safeAreaContainer: {
     flex: 1,
-    backgroundColor: 'black', // Set the background color as needed
+    //backgroundColor: 'black', // Set the background color as needed
     paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0, // Adjust padding for Android
   },
   container: {

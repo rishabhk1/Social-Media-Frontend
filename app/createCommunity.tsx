@@ -165,7 +165,7 @@ export default function CreateCommunity() {
 const styles = StyleSheet.create({
   safeAreaContainer: {
     flex: 1,
-    backgroundColor: 'black', // Set the background color as needed
+    //backgroundColor: 'black', // Set the background color as needed
     paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0, // Adjust padding for Android
   },
   container: {

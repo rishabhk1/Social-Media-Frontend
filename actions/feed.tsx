@@ -178,7 +178,7 @@ export const deleteFromFeedAction = (userId?: string, postId?: string) =>  {
     } catch (error) {
       dispatch(setError(error.message));
     } finally {
-      dispatch(setLoading(true));
+      dispatch(setLoading(false));
     }
   }
 };

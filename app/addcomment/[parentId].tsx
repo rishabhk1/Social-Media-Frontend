@@ -10,8 +10,12 @@ import { user_id } from '@/constants/Urls';
 import { createCommentAction } from '@/actions/createComment';
 import ErrorView from '@/components/ErrorView';
 import { clearCreateComment } from '@/state/reducers/createCommentSlice';
+import Colors from '@/constants/Colors';
+import { useColorScheme } from '@/components/useColorScheme';
+
 
 export default function AddComment() {
+  const colorScheme = useColorScheme();
   const {parentId} = useLocalSearchParams();
   //console.warn(parentId);  
   const dispatch = useDispatch<AppDispatch>();
@@ -115,7 +119,7 @@ export default function AddComment() {
 const styles = StyleSheet.create({
   safeAreaContainer: {
     flex: 1,
-    backgroundColor: 'black', // Set the background color as needed
+    // backgroundColor: statusColor, // Set the background color as needed
     paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0, // Adjust padding for Android
   },
   container: {
