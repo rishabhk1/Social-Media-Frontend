@@ -1,4 +1,4 @@
-export const user_id="2";
+// export const user_id="1";
 export const BASE_URL="https://raptor-rested-evidently.ngrok-free.app";
 export const FEED_PATH="/feed";
 export const UPVOTE="/post/upvote";

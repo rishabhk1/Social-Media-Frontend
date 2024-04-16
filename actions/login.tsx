@@ -1,7 +1,7 @@
 import axios from "../axios";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { Dispatch } from "@reduxjs/toolkit";
-import {  setError, setLoading, setAuth } from "@/state/reducers/loginSlice";
+import {  setError, setLoading, setAuth, setUserId } from "@/state/reducers/loginSlice";
 import { LOGIN, user_id } from "@/constants/Urls";
 import { fetchPosts } from "./feed";
 import { clearFeed } from "@/state/reducers/feedSlice";
@@ -41,7 +41,7 @@ export const loginAction = (username: string, password: string) =>  {
             console.log(response.data.token);
             storeData("userId", response.data.userId);
             storeData("token", response.data.token);
-
+            dispatch(setUserId(response.data.userId));
             dispatch(setAuth(true));
             dispatch(setLoading(false));
         } else {

@@ -8,14 +8,16 @@ import { createSlice } from "@reduxjs/toolkit";
 
 export interface loginState {
     auth: boolean,
-    error: string | null;
-    loading: boolean
+    error: string | null,
+    loading: boolean,
+    userId: string | null,
   }
   
   const initialState: loginState = {
     auth: false, 
     error: null,
-    loading: false
+    loading: false,
+    userId: null
   };
 
   export const loginSlice = createSlice({
@@ -24,8 +26,11 @@ export interface loginState {
     reducers: {
 
       // Add a reducer to set an error message
+      setUserId(state, action){
+        state.userId=action.payload;
+      },
       setAuth(state, action){
-        state.auth=action.payload
+        state.auth=action.payload;
       },
       setError(state, action) {
         state.error = action.payload;
@@ -34,6 +39,7 @@ export interface loginState {
         state.error=null;
         state.loading=false;
         state.auth=false;
+        state.userId=null;
       },
       setLoading(state, action) {
         state.loading = action.payload;
@@ -43,7 +49,7 @@ export interface loginState {
   });
   
   // Export the actions
-export const { setAuth, setError, clearLogin, setLoading} = loginSlice.actions;
+export const { setUserId,setAuth, setError, clearLogin, setLoading} = loginSlice.actions;
 
 
 export default loginSlice.reducer;

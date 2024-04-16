@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 import { RootState, AppDispatch } from '@/state/store';
 import { fetchPostComment } from '@/actions/postComment';
 import { fetchPostComment as  fetchCommentComment } from '@/actions/comment';
-import { user_id } from '@/constants/Urls';
+// import { user_id } from '@/constants/Urls';
 import { createCommentAction } from '@/actions/createComment';
 import ErrorView from '@/components/ErrorView';
 import { clearCreateComment } from '@/state/reducers/createCommentSlice';
@@ -21,6 +21,7 @@ export default function AddComment() {
   const dispatch = useDispatch<AppDispatch>();
   const error = useSelector((state: RootState) => state.createComment.error);
   const loading = useSelector((state: RootState) => state.createComment.loading);
+  const user_id= useSelector((state: RootState) => state.login.userId);
   const router = useRouter();
   const [text, setText] = useState("");
   const [justMounted, setJustMounted] = useState(true);

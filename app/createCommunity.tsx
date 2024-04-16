@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 import { RootState, AppDispatch } from '@/state/store';
 import { fetchPostComment } from '@/actions/postComment';
 import { fetchPostComment as  fetchCommentComment } from '@/actions/comment';
-import { user_id } from '@/constants/Urls';
+// import { user_id } from '@/constants/Urls';
 import { fetchName } from '@/actions/createCommunity';
 import { createCommentAction } from '@/actions/createComment';
 import { createCommunityAction } from '@/actions/createCommunity';
@@ -20,6 +20,7 @@ export default function CreateCommunity() {
   const error = useSelector((state: RootState) => state.createCommunity.error);
   const loading = useSelector((state: RootState) => state.createCommunity.loading);
   const DATA = useSelector((state: RootState) => state.createCommunity.communityName);
+  const user_id =useSelector((state: RootState) => state.login.userId);
   const router = useRouter();
   const [text, setText] = useState("");
   const[description, setDescription] = useState("");

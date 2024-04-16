@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { fetchName } from '@/actions/createPost';
 import { RootState, AppDispatch } from '@/state/store';
 import { createPostAction } from '@/actions/createPost';
-import { user_id } from '@/constants/Urls';
+// import { user_id } from '@/constants/Urls';
 import { fetchPosts } from '@/actions/feed';
 import { clearFeed } from '@/state/reducers/feedSlice';
 import ErrorView from '@/components/ErrorView';
@@ -27,6 +27,7 @@ export default function TabTwoScreen() {
   const DATA = useSelector((state: RootState) => state.createPost.communityName);
   const error = useSelector((state: RootState) => state.createPost.error);
   const loading = useSelector((state: RootState) => state.createPost.loading);
+  const user_id= useSelector((state: RootState) => state.login.userId);
   const router = useRouter();
   const [title, setTitle] = useState("");
   const [communityId, setCommunityId] = useState("");

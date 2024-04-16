@@ -318,7 +318,7 @@ export const appealFromProfileAction = (userId?: string, postId?: string) =>  {
       if (response.status === 200) {
           console.log('appeal',response.data);
           dispatch(appealFromProfile({postId}));
-          await sleep(1500);
+          await sleep(2000);
         
       } else {
         throw new Error(response?.data || "Error");

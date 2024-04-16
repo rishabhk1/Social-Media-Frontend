@@ -3,13 +3,14 @@ import { Entypo    } from '@expo/vector-icons';
 import IconButton from './IconButton';
 import {MaterialCommunityIcons} from '@expo/vector-icons';
 import React,{useState} from 'react';
-import { useDispatch } from 'react-redux';
-import { user_id } from '@/constants/Urls';
-import { AppDispatch } from '@/state/store';
+import { useDispatch, useSelector } from 'react-redux';
+// import { user_id } from '@/constants/Urls';
+import { AppDispatch, RootState } from '@/state/store';
 import { Button, Dialog, Portal,PaperProvider } from 'react-native-paper';
 import { showFromCommunityAction, hideFromCommunityAction } from '@/actions/community';
 import {Link} from 'expo-router';
 import MinidenticonImg from './IdentityIcon';
+
 
 export function timeAgo(dateString: string): string {
   const now = new Date();
@@ -30,7 +31,7 @@ export function timeAgo(dateString: string): string {
   }
 }
 
-const createDeleteAlert = (dispatch, deleteFn, id) =>
+const createDeleteAlert = (dispatch, deleteFn, id, user_id) =>
 Alert.alert('Delete', 'do you want to delete this post', [
   {text: 'OK', onPress: () => dispatch(deleteFn(user_id, id))},
   {
@@ -40,7 +41,7 @@ Alert.alert('Delete', 'do you want to delete this post', [
   },
 ],{ cancelable: true});
 
-const moderatorVoteAlert = (dispatch, id) =>
+const moderatorVoteAlert = (dispatch, id, user_id) =>
 Alert.alert('Moderator Vote', 'select either show or hide for this post', [
   {text: 'Show', onPress: () => dispatch(showFromCommunityAction(user_id, id))},
   {
@@ -50,7 +51,7 @@ Alert.alert('Moderator Vote', 'select either show or hide for this post', [
   },
 ],{ cancelable: true});
 
-const appealAlert = (dispatch, appealFn, id, isAppealed, showCount) => {
+const appealAlert = (dispatch, appealFn, id, isAppealed, showCount, user_id) => {
   if(showCount==-100){
     return Alert.alert('Appeal', 'this post was already appealed and moderators decided to show the post')
   }
@@ -96,6 +97,7 @@ const Post = ({post,expand, upvoteFn, downvoteFn, undoDownvoteFn,undoUpvoteFn, d
   const showDialog= () => setVisible(true);
 
   const dispatch = useDispatch<AppDispatch>();
+  const user_id= useSelector((state: RootState) => state.login.userId);
   //console.log(post.id);
     return (
       <Link href={`/post/${post.id}`} asChild>
@@ -119,7 +121,7 @@ const Post = ({post,expand, upvoteFn, downvoteFn, undoDownvoteFn,undoUpvoteFn, d
               </Link>
             </Pressable>
             <Text style={styles.username}>{timeAgo(post.createdAt)}</Text>
-            {isModerator && <Entypo name="dots-three-horizontal" size={16} color="black" style={{marginLeft: 'auto'}}  onPress={()=>moderatorVoteAlert(dispatch, post.id)}/>}
+            {(isModerator && !(post.hasHidevoted ||  post.hasShowvoted)) && <Entypo name="dots-three-horizontal" size={16} color="black" style={{marginLeft: 'auto'}}  onPress={()=>moderatorVoteAlert(dispatch, post.id, user_id)}/>}
           </View>
           {expand && <Text style={styles.title}>{post.title}</Text>}
           {!expand && <Text style={styles.content}>{post.title}</Text>}
@@ -160,10 +162,10 @@ const Post = ({post,expand, upvoteFn, downvoteFn, undoDownvoteFn,undoUpvoteFn, d
             </View>
             <View style={{    flexDirection: 'row', alignItems: 'center'}}>
               {((post.author === user_id) && <View style={{marginRight:10}}>
-                <MaterialCommunityIcons  name={'delete-outline'} size={26} color="gray" onPress={() => createDeleteAlert(dispatch, deleteFn, post.id)}/>
+                <MaterialCommunityIcons  name={'delete-outline'} size={26} color="gray" onPress={() => createDeleteAlert(dispatch, deleteFn, post.id, user_id)}/>
               </View>)}
               <View>
-                <MaterialCommunityIcons  name={'flag-variant-outline'} size={26} color="gray" onPress={() => appealAlert(dispatch, appealFn, post.id, post.isAppealed, post.showCount)}/>
+                <MaterialCommunityIcons  name={'flag-variant-outline'} size={26} color="gray" onPress={() => appealAlert(dispatch, appealFn, post.id, post.isAppealed, post.showCount, user_id)}/>
               </View>
             </View>
           </View>

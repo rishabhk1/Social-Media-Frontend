@@ -4,7 +4,7 @@ import comments from '../../assets/data/comments';
 import { useDispatch, useSelector } from 'react-redux';
 import { useState, useEffect } from 'react';
 import { RootState, AppDispatch } from '@/state/store';
-import { user_id } from '@/constants/Urls';
+// import { user_id } from '@/constants/Urls';
 import { clearPostComment } from "@/state/reducers/postCommentSlice";
 import Comment from '@/components/Comment';
 import {Text, View, FlatList, StyleSheet, TextInput, ScrollView, Pressable,ActivityIndicator} from 'react-native';
@@ -22,6 +22,7 @@ export default function PostScreen(){
     const loading = useSelector((state: RootState) => state.postComment.loading);
     const nextPage = useSelector((state: RootState) => state.postComment.nextPage);
     const error  = useSelector((state: RootState) => state.postComment.error);
+    const user_id= useSelector((state: RootState) => state.login.userId);
     // const tweet = tweets.find((t => t.id === id));
     // const comment= tweet?.comments?.map((id) => {
     //     const cs = comments.find((c) => c.id === id);

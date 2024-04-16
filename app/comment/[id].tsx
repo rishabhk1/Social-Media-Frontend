@@ -5,7 +5,7 @@ import comments from '../../assets/data/comments';
 import { useDispatch, useSelector } from 'react-redux';
 import { useState, useEffect , useCallback} from 'react';
 import { RootState, AppDispatch } from '@/state/store';
-import { user_id } from '@/constants/Urls';
+// import { user_id } from '@/constants/Urls';
 import {Text, View, FlatList, StyleSheet, ActivityIndicator, Pressable, TextInput} from 'react-native';
 import {appealFromCommentAction, fetchPostComment, upvoteFromCommentAction, undoUpvoteFromCommentAction, undoDownvoteFromCommentAction, downvoteFromCommentAction, fetchComment,deleteFromCommentAction } from '@/actions/comment'
 import { useGlobalSearchParams, useLocalSearchParams, Link  } from 'expo-router';
@@ -22,6 +22,7 @@ export default function CommentScreen(){
     const loading = useSelector((state: RootState) => state.comment.loading);
     const nextPage = useSelector((state: RootState) => state.comment.nextPage);
     const error  = useSelector((state: RootState) => state.comment.error);
+    const user_id= useSelector((state: RootState) => state.login.userId);
     // console.log(id);
     // const commentHead = comments.find((t => t.id === id));
     // const comment= commentHead?.comments?.map((id) => {

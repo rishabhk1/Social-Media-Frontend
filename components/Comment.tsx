@@ -4,14 +4,14 @@ import {MaterialCommunityIcons} from '@expo/vector-icons';
 import IconButton from './IconButton';
 import React from 'react';
 import {Link} from 'expo-router';
-import { useDispatch } from 'react-redux';
-import { user_id } from '@/constants/Urls';
-import { AppDispatch } from '@/state/store';
+import { useDispatch, useSelector } from 'react-redux';
+// import { user_id } from '@/constants/Urls';
+import { AppDispatch, RootState } from '@/state/store';
 import { showFromCommunityAction, hideFromCommunityAction } from '@/actions/community';
 import { timeAgo } from './Post';
 import MinidenticonImg from './IdentityIcon';
 
-const createDeleteAlert = (dispatch, deleteFn, id) =>
+const createDeleteAlert = (dispatch, deleteFn, id, user_id) =>
 Alert.alert('Delete', 'do you want to delete this comment', [
   {text: 'OK', onPress: () => dispatch(deleteFn(user_id, id))},
   {
@@ -21,7 +21,7 @@ Alert.alert('Delete', 'do you want to delete this comment', [
   },
 ]);
 
-const moderatorVoteAlert = (dispatch, id) =>
+const moderatorVoteAlert = (dispatch, id, user_id) =>
 Alert.alert('Moderator Vote', 'select either show or hide for this post', [
   {text: 'Show', onPress: () => dispatch(showFromCommunityAction(user_id, id))},
   {
@@ -45,7 +45,7 @@ Alert.alert('Moderator Vote', 'select either show or hide for this post', [
 //   ],{ cancelable: true});
 // }
 
-const appealAlert = (dispatch, appealFn, id, isAppealed, showCount) => {
+const appealAlert = (dispatch, appealFn, id, isAppealed, showCount, user_id) => {
   if(showCount==-100){
     return Alert.alert('Appeal', 'this comment was already appealed and moderators decided to show the comment')
   }
@@ -85,6 +85,7 @@ const ShareComment = async (comment) => {
 
 const Comment = ({comment, upvoteFn, downvoteFn, undoDownvoteFn,undoUpvoteFn,deleteFn, appealFn, isModerator=false}) => {
   const dispatch = useDispatch<AppDispatch>();
+  const user_id= useSelector((state: RootState) => state.login.userId);
     console.log(comment);
     return (
       <Link push href={`/comment/${comment.id}`} asChild>
@@ -107,7 +108,7 @@ const Comment = ({comment, upvoteFn, downvoteFn, undoDownvoteFn,undoUpvoteFn,del
               </Link>
             </Pressable>
             <Text style={styles.username}>{timeAgo(comment.createdAt)}</Text>
-            {isModerator && <Entypo name="dots-three-horizontal" size={16} color="black" style={{marginLeft: 'auto'}} onPress={()=>moderatorVoteAlert(dispatch, comment.id)}/>}
+            {(isModerator && !(comment.hasHidevoted ||  comment.hasShowvoted)) && <Entypo name="dots-three-horizontal" size={16} color="black" style={{marginLeft: 'auto'}} onPress={()=>moderatorVoteAlert(dispatch, comment.id, user_id)}/>}
           </View>
           <Text style={styles.content}>{comment.content}</Text>
           <View style={styles.footer}>
@@ -146,10 +147,10 @@ const Comment = ({comment, upvoteFn, downvoteFn, undoDownvoteFn,undoUpvoteFn,del
             </View>
             <View style={{    flexDirection: 'row', alignItems: 'center'}}>
               {((comment.author === user_id) && <View style={{marginRight:10}}>
-                <MaterialCommunityIcons  name={'delete-outline'} size={26} color="gray" onPress={() => createDeleteAlert(dispatch, deleteFn, comment.id)}/>
+                <MaterialCommunityIcons  name={'delete-outline'} size={26} color="gray" onPress={() => createDeleteAlert(dispatch, deleteFn, comment.id, user_id)}/>
               </View>)}
               <View>
-                <MaterialCommunityIcons  name={'flag-variant-outline'} size={26} color="gray" onPress={() => appealAlert(dispatch, appealFn, comment.id, comment.isAppealed, comment.showCount)}/>
+                <MaterialCommunityIcons  name={'flag-variant-outline'} size={26} color="gray" onPress={() => appealAlert(dispatch, appealFn, comment.id, comment.isAppealed, comment.showCount, user_id)}/>
               </View>
             </View>
           </View>

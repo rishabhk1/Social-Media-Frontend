@@ -8,16 +8,26 @@ import { useState, useEffect , useCallback} from 'react';
 import { RootState, AppDispatch } from '@/state/store';
 import {fetchPost, fetchComment, fetchPostComment, upvoteFromProfileAction, downvoteFromProfileAction, undoDownvoteFromProfileAction, undoUpvoteFromProfileAction, deleteFromProfileAction, appealFromProfileAction} from '@/actions/profile'
 import { clearProfile } from '@/state/reducers/profileSlice';
-import { user_id } from '@/constants/Urls';
+// import { user_id } from '@/constants/Urls';
 import MinidenticonImg from '@/components/IdentityIcon';
 import ErrorView from '@/components/ErrorView';
 import { useFocusEffect } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const initialPagePost = 0;
 const intialPageComment=0;
+// const user_id = AsyncStorage.getItem("userId")
+//     .then(data => {
+//         // You can use the data here
+//         return data;
+//     })
+//     .catch(error => {
+//         // Handle any errors here
+//         console.error(error);
+//     });
 
 
-export default function Profile({id=user_id}) {
+export default function Profile({id=null}) {
     console.log("profile", id);
     const dispatch = useDispatch<AppDispatch>();
     const posts = useSelector((state: RootState) => state.profile.posts);
@@ -30,6 +40,10 @@ export default function Profile({id=user_id}) {
     const targetUserEmail = useSelector((state: RootState) => state.profile.targetUserEmail);
     const targetUserName = useSelector((state: RootState) => state.profile.targetUserName);
     const error  = useSelector((state: RootState) => state.profile.error);
+    const user_id =useSelector((state: RootState) => state.login.userId);
+    if(id === null){
+        id=useSelector((state: RootState) => state.login.userId);
+    }
     const [selectedSection, setSelectedSection] = useState('posts');
     const sections = [
         {
@@ -65,7 +79,7 @@ export default function Profile({id=user_id}) {
             if(loading) return;
             dispatch(fetchPostComment(id, user_id, initialPagePost, intialPageComment));
         //setNextPage(nextPage+1);
-        }, [id])
+        }, [])
       );
     const renderItem = ({item, section}) =>{
         if(selectedSection==='comments' && section.title==='comments'){

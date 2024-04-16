@@ -31,7 +31,7 @@ export const createPostAction = (communityId: string, title: string, description
             console.log("post created");
             await sleep(2000);
             dispatch(clearFeed());
-            dispatch(fetchPosts(user_id,0));
+            dispatch(fetchPosts(userId,0));
             dispatch(setLoading(false));
         } else {
           throw new Error(response?.data || "Error");

@@ -15,7 +15,7 @@ export const fetchPosts = (userId?: string, page?: number) =>  {
       try {
         const response = await axios.get(FEED_PATH,{
             params: {
-                id: user_id,
+                id: userId,
                 pageNo: page
               }
         });

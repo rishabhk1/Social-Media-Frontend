@@ -268,7 +268,7 @@ export interface ProfileState {
         );
           return {
             ...state,
-            appealed: updatedPosts,
+            comments: updatedPosts,
           };
       }
       // You can add more reducers here for specific actions related to post management

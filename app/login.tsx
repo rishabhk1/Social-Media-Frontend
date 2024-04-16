@@ -87,7 +87,7 @@
 // });
 
 // import React, { useState } from 'react';
-import { View, TextInput, Button, StyleSheet,ActivityIndicator } from 'react-native';
+import { View, TextInput, Button, StyleSheet,ActivityIndicator, Image, Alert } from 'react-native';
 import { useState, useEffect } from 'react';
 import { RootState, AppDispatch } from '@/state/store';
 import { useDispatch, useSelector } from 'react-redux';
@@ -96,6 +96,7 @@ import { clearLogin } from '@/state/reducers/loginSlice';
 import { loginAction } from '@/actions/login';
 import { useNavigation } from '@react-navigation/native';
 import { white } from 'react-native-paper/lib/typescript/styles/themes/v2/colors';
+import img from '../assets/images/t.png';
 
 const LoginPage = () => {
   const navigation = useNavigation();
@@ -107,6 +108,14 @@ const LoginPage = () => {
  const [password, setPassword] = useState('');
 
  const handleLogin = () => {
+  if(username.trim() === ''){
+    Alert.alert('Error!', 'Please enter username');
+    return;
+  }
+  if(password.trim() === ''){
+    Alert.alert('Error!', 'Please enter password');
+    return;
+  }
     dispatch(loginAction(username, password));
  };
  useEffect(() => {
@@ -134,17 +143,22 @@ const LoginPage = () => {
 
  return (
     <View style={styles.container}>
+      <View>
+      <Image source={img} style={{ width: 300, height: 300 }} />
+      </View>
       <TextInput
         style={styles.input}
         placeholder="Username"
         onChangeText={setUsername}
         value={username}
+        selectionColor="black"
       />
       <TextInput
         style={styles.input}
         placeholder="Password"
         onChangeText={setPassword}
         value={password}
+        selectionColor="black"
         secureTextEntry
       />
       <View style={styles.buttonContainer}>
@@ -156,25 +170,29 @@ const LoginPage = () => {
 };
 
 const styles = StyleSheet.create({
- container: {
-    flex: 1,
-    backgroundColor: 'white',
-    justifyContent: 'center',
-    paddingHorizontal: 20,
- },
- input: {
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    marginBottom: 10,
-    paddingLeft: 10,
- },
- buttonContainer: {
-    borderRadius: 50,
-    overflow: 'hidden', // This is important to make the borderRadius effective
-    marginTop: 10,
-    width:80
- },
-});
+  container: {
+     flex: 1,
+     backgroundColor: 'white',
+    //  justifyContent: 'center', // Center children vertically
+     alignItems: 'center', // Center children horizontally
+     paddingHorizontal: 20,
+  },
+  input: {
+     height: 40,
+     borderColor: 'gray',
+     borderWidth: 1,
+     marginBottom: 10,
+     paddingLeft: 10,
+     width: '100%', // Ensure the input fields take up the full width
+  },
+  buttonContainer: {
+     borderRadius: 50,
+     overflow: 'hidden', // This is important to make the borderRadius effective
+     marginTop: 10,
+     width: 80,
+     alignItems: 'center', // Center the button horizontally
+     justifyContent: 'center', // Center the button vertically
+  },
+ });
 
 export default LoginPage;

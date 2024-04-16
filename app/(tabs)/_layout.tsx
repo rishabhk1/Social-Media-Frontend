@@ -12,7 +12,7 @@ import { View, Platform , Dimensions} from 'react-native';
 import { Button, Menu, Divider, PaperProvider } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { setAuth } from '@/state/reducers/loginSlice';
+import { clearLogin, setAuth } from '@/state/reducers/loginSlice';
 import { RootState, AppDispatch } from '@/state/store';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -128,7 +128,7 @@ export default function TabLayout() {
                 {/* </Link> */}
                 <Divider />
                 <Menu.Item
-                  onPress={() => {clearAllData();dispatch(setAuth(false));resetAndNavigate("login");}}
+                  onPress={() => {clearAllData();dispatch(clearLogin());resetAndNavigate("login");}}
                   title="Logout"
                   leadingIcon="logout"
                   theme={{ colors: { onSurfaceVariant: Colors[colorScheme ?? 'light'].tint, onSurface: Colors[colorScheme ?? 'light'].tint } }}

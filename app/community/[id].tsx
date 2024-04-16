@@ -11,7 +11,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { RootState, AppDispatch } from '@/state/store';
 import {fetchPostComment, appealFromCommunityAction, fetchPost, fetchComment, upvoteFromCommunityAction, undoUpvoteFromCommunityAction,deleteFromCommunityAction, undoDownvoteFromCommunityAction, downvoteFromCommunityAction, joinCommunityAction, unjoinCommunityAction } from '@/actions/community'
 import { clearCommunity } from '@/state/reducers/communitySlice';
-import { user_id } from '@/constants/Urls';
+// import { user_id } from '@/constants/Urls';
 import MinidenticonImg from '@/components/IdentityIcon';
 import ErrorView from '@/components/ErrorView';
 // import {
@@ -42,7 +42,7 @@ export default function CommunityHome() {
 
     const error  = useSelector((state: RootState) => state.community.error);
 
-
+    const user_id= useSelector((state: RootState) => state.login.userId);
     const [isMemberModalVisible, setMemberModalVisible] = useState(false);
     const [isModModalVisible, setModModalVisible] = useState(false);
     const [selectedSection, setSelectedSection] = useState('posts');
